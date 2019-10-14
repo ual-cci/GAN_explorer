@@ -1,0 +1,13 @@
+- To have a simple (one-two files) handler to a trained GAN (/...) model for easy interaction.
+
+- Ideally end up with only:
+
+  - init
+  - report // your internal status and what you need / give
+  - out=infer(in)
+  - set_mode // (opt) setting mode of the models, some large changes, if the model supports them
+
+- Finally this would be added to a separate interactive code - which would figure out rendering and interactivity separately, simply using these calls.
+
+Why? (You might ask) Because in my previous experience using these was unwieldy and one looses more time on dealing with details that with creating something interesting (so kinda transform a code/research/idea into tool).
+
