@@ -210,6 +210,7 @@ def save_summaries(filewriter, global_step=None):
 # Utilities for importing modules and objects by name.
 
 def import_module(module_or_obj_name):
+    #print("called import_module, module_or_obj_name=", module_or_obj_name)
     parts = module_or_obj_name.split('.')
     parts[0] = {'np': 'numpy', 'tf': 'tensorflow'}.get(parts[0], parts[0])
     for i in range(len(parts), 0, -1):
@@ -222,9 +223,12 @@ def import_module(module_or_obj_name):
     raise ImportError(module_or_obj_name)
 
 def find_obj_in_module(module, relative_obj_name):
+    #print("called find_obj_in_module, relative_obj_name=", relative_obj_name)
     obj = module
     for part in relative_obj_name.split('.'):
         obj = getattr(obj, part)
+        #if relative_obj_name == "G_paper":
+        #    print(obj)
     return obj
 
 def import_obj(obj_name):
@@ -675,6 +679,112 @@ class Network:
         if not return_as_list:
             out_arrays = out_arrays[0] if len(out_arrays) == 1 else tuple(out_arrays)
         return out_arrays
+
+
+    # Get TensorFlow expression(s) for the output(s) of this network, given the inputs.
+    def custom_tinkered_get_output_for(self, output_layer_name, *in_expr, return_as_list=False, **dynamic_kwargs):
+        assert len(in_expr) == self.num_inputs
+        all_kwargs = dict(self.static_kwargs)
+        all_kwargs.update(dynamic_kwargs)
+        with tf.variable_scope(self.scope, reuse=True):
+            assert tf.get_variable_scope().name == self.scope
+            print("in_expr", in_expr)
+            print("self.input_names", self.input_names)
+            named_inputs = [tf.identity(expr, name=name) for expr, name in zip(in_expr, self.input_names)]
+            print("named_inputs", named_inputs)
+            print("all_kwargs", all_kwargs)
+
+            out_expr = self._build_func(*named_inputs, **all_kwargs)
+            print("out_expr 1", out_expr)
+
+        assert is_tf_expression(out_expr) or isinstance(out_expr, tuple)
+        if return_as_list:
+            out_expr = [out_expr] if is_tf_expression(out_expr) else list(out_expr)
+        return out_expr
+
+    # Run this network for the given NumPy array(s), and return the output(s) as NumPy array(s).
+    def custom_tinkered_layer_output_run(self, output_layer_name, restart, *in_arrays,
+        return_as_list  = False,    # True = return a list of NumPy arrays, False = return a single NumPy array, or a tuple if there are multiple outputs.
+        print_progress  = False,    # Print progress to the console? Useful for very large input arrays.
+        minibatch_size  = None,     # Maximum minibatch size to use, None = disable batching.
+        num_gpus        = 1,        # Number of GPUs to use.
+        out_mul         = 1.0,      # Multiplicative constant to apply to the output(s).
+        out_add         = 0.0,      # Additive constant to apply to the output(s).
+        out_shrink      = 1,        # Shrink the spatial dimensions of the output(s) by the given factor.
+        out_dtype       = None,     # Convert the output to the specified data type.
+        **dynamic_kwargs):          # Additional keyword arguments to pass into the network construction function.
+
+        assert len(in_arrays) == self.num_inputs
+        num_items = in_arrays[0].shape[0]
+        if minibatch_size is None:
+            minibatch_size = num_items
+        key = str([list(sorted(dynamic_kwargs.items())), num_gpus, out_mul, out_add, out_shrink, out_dtype])
+
+        print("key", key)
+        print("self._run_cache", self._run_cache)
+
+        # Build graph.
+        if restart or (key not in self._run_cache):
+            #if key not in self._run_cache:
+            #if True:
+            print("building graph")
+            with absolute_name_scope(self.scope + '/Run'), tf.control_dependencies(None):
+                in_split = list(zip(*[tf.split(x, num_gpus) for x in self.input_templates]))
+                out_split = []
+                for gpu in range(num_gpus):
+                    with tf.device('/gpu:%d' % gpu):
+                        # this builds the whole thing
+                        out_expr = self.custom_tinkered_get_output_for(output_layer_name, *in_split[gpu], return_as_list=True, **dynamic_kwargs)
+
+                        """
+                        tensor_name_list = [tensor for tensor in tf.get_default_graph().as_graph_def().node]
+                        for t in tensor_name_list[-50:]:
+                            print(t.name, t)
+                        """
+
+                        # from which we choose only one particular output we wanted
+                        graph = tf.get_default_graph()
+                        feat_0 = graph.get_tensor_by_name(output_layer_name)
+                        print("out_expr 2", out_expr)
+                        out_expr = [feat_0]
+                        print("out_expr 3 (from feat_0)", out_expr)
+
+
+                        if out_mul != 1.0:
+                            out_expr = [x * out_mul for x in out_expr]
+                        if out_add != 0.0:
+                            out_expr = [x + out_add for x in out_expr]
+                        if out_shrink > 1:
+                            ksize = [1, 1, out_shrink, out_shrink]
+                            out_expr = [tf.nn.avg_pool(x, ksize=ksize, strides=ksize, padding='VALID', data_format='NCHW') for x in out_expr]
+                        if out_dtype is not None:
+                            if tf.as_dtype(out_dtype).is_integer:
+                                out_expr = [tf.round(x) for x in out_expr]
+                            out_expr = [tf.saturate_cast(x, out_dtype) for x in out_expr]
+                        out_split.append(out_expr)
+
+                self._run_cache[key] = [tf.concat(outputs, axis=0) for outputs in zip(*out_split)]
+
+        # Run minibatches.
+        out_expr = self._run_cache[key]
+        out_arrays = [np.empty([num_items] + shape_to_list(expr.shape)[1:], expr.dtype.name) for expr in out_expr]
+        for mb_begin in range(0, num_items, minibatch_size):
+            if print_progress:
+                print('\r%d / %d' % (mb_begin, num_items), end='')
+            mb_end = min(mb_begin + minibatch_size, num_items)
+            mb_in = [src[mb_begin : mb_end] for src in in_arrays]
+            mb_out = tf.get_default_session().run(out_expr, dict(zip(self.input_templates, mb_in)))
+            for dst, src in zip(out_arrays, mb_out):
+                dst[mb_begin : mb_end] = src
+
+        # Done.
+        if print_progress:
+            print('\r%d / %d' % (num_items, num_items))
+        if not return_as_list:
+            out_arrays = out_arrays[0] if len(out_arrays) == 1 else tuple(out_arrays)
+        return out_arrays
+
+
 
     # Returns a list of (name, output_expr, trainable_vars) tuples corresponding to
     # individual layers of the network. Mainly intended to be used for reporting.
