@@ -16,9 +16,7 @@ print("Handshake request data", r)
 
 PORT = "5000"
 Images_REST_API_URL = "http://localhost:"+PORT+"/get_image"
-
-
-
+"""
 while 1:
     payload = {}
     how_many = 1
@@ -30,6 +28,7 @@ while 1:
     # submit the request
     start = timer()
     r = requests.post(Images_REST_API_URL, json=payload).json()
+
     total_time = timer() - start
     print("Time total", total_time)
     # print("request data", r)
@@ -54,3 +53,40 @@ while 1:
 
         imgplot = plt.imshow(image)
         plt.show()
+"""
+
+Images_REST_API_URL_2 = "http://localhost:"+PORT+"/get_image_2"
+
+from PIL import Image
+import requests
+from io import BytesIO
+while 1:
+    payload = {}
+    how_many = 1
+    latent_vector_size = 512
+    latents = np.random.randn(how_many, latent_vector_size)
+    # image = open(IMAGE_PATH, "rb").read()
+    payload["latents"] = latents.tolist()
+
+    # submit the request
+    start = timer()
+
+    r = requests.post(Images_REST_API_URL_2, json=payload)
+
+    # open as compressed (slower than jpeg, but faster than png)
+    """
+    buf = BytesIO(r.content)
+    npzfile = np.load(buf)
+
+    images = npzfile['arr_0']  # default names are given unless you use keywords to name your arrays
+    img = images[0]
+    """
+
+    # actual file
+    img = Image.open(BytesIO(r.content))
+
+    total_time = timer() - start
+    print("Time total", total_time)
+
+    imgplot = plt.imshow(img)
+    plt.show()

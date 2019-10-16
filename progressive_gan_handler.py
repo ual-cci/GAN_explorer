@@ -87,6 +87,11 @@ class ProgressiveGAN_Handler(object):
             self._mode_intermediate_output = True
             self._mode_intermediate_output_layer_name = intermediate_output_layer
 
+    def save_image(self, image, name="foo.jpg"):
+        im = PIL.Image.fromarray(image)
+        im.save(name)
+
+
 # Example of usage:
 """
 pro_path = "aerials512vectors1024px_snapshot-010200.pkl"

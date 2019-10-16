@@ -11,6 +11,8 @@ import socket
 import cv2
 import progressive_gan_handler
 import settings
+import io
+import PIL.Image
 
 # Thanks to the tutorial at: https://blog.keras.io/building-a-simple-keras-deep-learning-rest-api.html
 
@@ -141,6 +143,8 @@ def get_image():
         global serverside_handler
         t_infer_start = timer()
         images = serverside_handler.infer(latents)
+        #serverside_handler.save_image(images[0])
+
         t_infer_end = timer()
         t_infer = t_infer_end - t_infer_start
 
@@ -172,13 +176,91 @@ def get_image():
 
     return as_json
 
+
+@app.route("/get_image_2", methods=["POST"])
+def get_image_2():
+    # Evaluate data
+    data = {"success": False}
+    if flask.request.method == "POST":
+        t_decode_start = timer()
+
+        """
+        DEFAULT_interactive_i = 0.0
+        DEFAULT_model_i = 0
+        DEFAULT_song_i = 0
+        interactive_i = DEFAULT_interactive_i
+        model_i = DEFAULT_model_i
+        song_i = DEFAULT_song_i
+        """
+        DEFAULT_latents = None
+        latents = DEFAULT_latents
+
+        if len(flask.request.files) and SERVER_VERBOSE > 1:
+            print("Recieved flask.request.files = ",flask.request.files)
+
+        try:
+            #latents = flask.request.files["latents"].read()
+            data = flask.request.json
+            latents = np.array(data['latents'])
+            print(latents.shape)
+
+
+        except Exception as e:
+            print("failed to read the sent latents", e)
+
+        print("Server will generate image from the requested latents",latents.shape)
+
+        t_decode_end = timer()
+
+        global serverside_handler
+        t_infer_start = timer()
+        images = serverside_handler.infer(latents)
+        t_infer_end = timer()
+
+        print("time_infer =",t_infer_end-t_infer_start)
+        print("time_decode =",t_decode_end-t_decode_start)
+
+
+        # Save into file - slightly slower
+        #serverside_handler.save_image(images[0])
+
+        filetype = 'jpeg'
+        #filetype = 'png' # < Slower than np.savez_compressed !
+        # Save into buffer
+        image = images[0]
+        buf = io.BytesIO() # create our buffer
+        image = PIL.Image.fromarray(image)
+        image.save(buf, filetype)
+        buf.name = 'foo.'+filetype
+        buf.seek(0) # restart the file
+
+        return send_file(buf, mimetype='image/'+filetype)
+
+
+    """
+    # using compressed save is slower (maybe slightly better q)
+    import io
+    buf = io.BytesIO()  # create our buffer
+    # pass the buffer as you would an open file object
+    np.savez_compressed(buf, images)
+    buf.seek(0)  # This simulates closing the file and re-opening it.
+    #  Otherwise the cursor will already be at the end of the
+    #  file when flask tries to read the contents, and it will
+    #  think the file is empty.
+    return send_file(buf, mimetype='image/jpeg')
+    """
+
+    filename = 'foo.jpg'
+    return send_file(filename, mimetype='image/jpeg')
+
+
 @app.route("/debugMethod", methods=["GET"])
 def debugMethod():
     # This just does something I want to test...
     data = {"success": False}
     try:
         global serverside_handler
-        serverside_handler.load_weights(model_i=5)
+        # Do something here ...
 
         # indicate that the request was a success
         data["success"] = True
@@ -187,6 +269,15 @@ def debugMethod():
 
     as_json = flask.jsonify(data)
     return as_json
+
+from flask import send_file
+
+@app.route('/get_image_file')
+def get_image_file():
+
+    filename = 'foo.jpg'
+    return send_file(filename, mimetype='image/jpeg')
+
 
 def get_gpus_buses():
     from tensorflow.python.client import device_lib
