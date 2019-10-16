@@ -5,7 +5,7 @@ import scipy.misc
 import matplotlib.pyplot as plt
 
 # = HANDSHAKE =================================================
-PORT = "5000"
+PORT = "8000"
 Handshake_REST_API_URL = "http://localhost:"+PORT+"/handshake"
 
 payload = {"client": "client", "backup_name":"Bob"}
@@ -14,7 +14,7 @@ print("Handshake request data", r)
 
 # = SEND BATCH OF IMAGES =====================================
 
-PORT = "5000"
+PORT = "8000"
 Images_REST_API_URL = "http://localhost:"+PORT+"/get_image"
 """
 while 1:

@@ -1,0 +1,16 @@
+# SSH tunnel guide:
+
+# (debug) super verbose
+#ssh -L 8000:127.0.0.1:8000 USER@SERVER -N -v -v
+
+# normal connection
+ssh -N -f -L 8000:127.0.0.1:8000 USER@SERVER
+
+# then check it with
+ps -aux | grep ssh
+#netstat -lpnt | grep 8000 | grep ssh
+
+# and close with
+kill PROCESS
+
+
