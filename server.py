@@ -29,6 +29,7 @@ app = flask.Flask(__name__)
 serverside_handler = None
 pool = ThreadPool()
 
+PORT = 8000
 
 class Server(object):
     """
@@ -52,9 +53,9 @@ class Server(object):
         print("server hostname is", hostname)
 
         if PRODUCTION:
-            serve(app, host='127.0.0.1', port=5000)
+            serve(app, host='127.0.0.1', port=PORT)
         else:
-            app.run(threaded=False) # < with forbiding threaded we still have the same default graph
+            app.run(threaded=False, port=PORT) # < with forbiding threaded we still have the same default graph
 
     def mem_monitor_deamon(self, frequency_sec):
         import subprocess
