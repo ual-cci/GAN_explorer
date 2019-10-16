@@ -10,15 +10,15 @@ class ProgressiveGAN_Handler(object):
     Handles a trained Progressive GAN model, loads from
     """
 
-    def __init__(self, model_path):
+    def __init__(self, settings, args):
         # Initialization, should create the model, load it and also run one inference (to build the graph)
-        print("Init handler with path =", model_path)
+        self.settings = settings
+        print("Init handler with path =", args.model_path)
 
         # Load and create a model
-        #self._create_model(model_path)
+        self._create_model(args.model_path)
 
-        self.latent_vector_size = 512 # get it from the model
-        #self.latent_vector_size = self._Gs.input_shapes[0][1:]
+        self.latent_vector_size = self._Gs.input_shapes[0][1:][0]
 
         self._mode_intermediate_output = False
         self._mode_intermediate_output_layer_name = "" # "Gs/Grow_lod1/add:0"
@@ -63,7 +63,7 @@ class ProgressiveGAN_Handler(object):
         return example_input
 
     def infer(self, input_latents, verbose=True):
-        labels = np.zeros([input_latents.shape[0]] + [self.latent_vector_size])
+        labels = np.zeros([input_latents.shape[0]] + self._Gs.input_shapes[1][1:])
 
         if self._mode_intermediate_output:
             images = self._Gs.custom_tinkered_layer_output_run(self._mode_intermediate_output_layer_name,False,input_latents,labels)
@@ -88,7 +88,7 @@ class ProgressiveGAN_Handler(object):
             self._mode_intermediate_output_layer_name = intermediate_output_layer
 
 # Example of usage:
-
+"""
 pro_path = "aerials512vectors1024px_snapshot-010200.pkl"
 pro_handler = ProgressiveGAN_Handler(pro_path)
 
@@ -108,12 +108,13 @@ times = []
 for repeat_i in range(repeats):
     t_infer = timer()
 
-    example_input = pro_handler.example_input()
-    example_output = pro_handler.infer(example_input)
+    example_input = pro_handler.example_input(verbose=False)
+    example_output = pro_handler.infer(example_input, verbose=False)
 
     t_infer = timer() - t_infer
-    times.append(t_infer)
-    print("Prediction (of 1 sample) took", t_infer, "sec.")
+    if repeat_i > 0:
+        times.append(t_infer)
+    #print("Prediction (of 1 sample) took", t_infer, "sec.")
 
 times = np.asarray(times)
 print("Statistics:")
@@ -121,20 +122,23 @@ print("prediction time - avg +- std =", np.mean(times), "+-", np.std(times), "se
 
 # Batch measurements
 
-how_many = 60 # thinking of showing about nearby 60 per sec - 60 fps?
+how_many = 4 # too big? gpu mem explodes
 repeats = 15
 times = []
 for repeat_i in range(repeats):
     t_infer = timer()
 
-    example_inputs = pro_handler.example_input(how_many = how_many)
-    example_outputs = pro_handler.infer(example_inputs)
+    example_inputs = pro_handler.example_input(how_many = how_many, verbose=False)
+    example_outputs = pro_handler.infer(example_inputs, verbose=False)
 
     t_infer = timer() - t_infer
-    times.append(t_infer)
-    print("Prediction (of",how_many,"samples) took", t_infer, "sec.")
+
+    if repeat_i > 0:
+        times.append(t_infer)
+    #print("Prediction (of",how_many,"samples) took", t_infer, "sec.")
 
 times = np.asarray(times)
 print("Statistics:")
 print("prediction of whole",how_many," took time - avg +- std =", np.mean(times), "+-", np.std(times), "sec.")
 print("prediction as divided for one - avg +- std =", np.mean(times/how_many), "+-", np.std(times/how_many), "sec.")
+"""
