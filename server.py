@@ -144,78 +144,6 @@ def get_image():
         global serverside_handler
         t_infer_start = timer()
         images = serverside_handler.infer(latents)
-        #serverside_handler.save_image(images[0])
-
-        t_infer_end = timer()
-        t_infer = t_infer_end - t_infer_start
-
-        t_encode_start = timer()
-        data["images_response"] = images.tolist() # hmmmmm
-        t_encode_end = timer()
-        data["time_infer"] = t_infer
-        data["time_decode"] = t_decode_end-t_decode_start
-        data["time_encode"] = t_encode_end-t_encode_start
-
-
-        t_server_end = timer()
-        time_server_total = t_server_end - t_decode_start
-        print("time server total =",time_server_total)
-        print("= time_infer =",t_infer)
-        print("+ time_decode =",t_decode_end-t_decode_start)
-        print("+ time_encode =",t_encode_end-t_encode_start)
-
-        data["time_server_total"] = time_server_total
-
-        # indicate that the request was a success
-        data["success"] = True
-
-    t_to_jsonify = timer()
-    as_json = flask.jsonify(data)
-    t_to_jsonify = timer() - t_to_jsonify
-    if SERVER_VERBOSE > 1:
-        print("JSONify took", t_to_jsonify, "sec.")
-
-    return as_json
-
-
-@app.route("/get_image_2", methods=["POST"])
-def get_image_2():
-    # Evaluate data
-    data = {"success": False}
-    if flask.request.method == "POST":
-        t_decode_start = timer()
-
-        """
-        DEFAULT_interactive_i = 0.0
-        DEFAULT_model_i = 0
-        DEFAULT_song_i = 0
-        interactive_i = DEFAULT_interactive_i
-        model_i = DEFAULT_model_i
-        song_i = DEFAULT_song_i
-        """
-        DEFAULT_latents = None
-        latents = DEFAULT_latents
-
-        if len(flask.request.files) and SERVER_VERBOSE > 1:
-            print("Recieved flask.request.files = ",flask.request.files)
-
-        try:
-            #latents = flask.request.files["latents"].read()
-            data = flask.request.json
-            latents = np.array(data['latents'])
-            print(latents.shape)
-
-
-        except Exception as e:
-            print("failed to read the sent latents", e)
-
-        print("Server will generate image from the requested latents",latents.shape)
-
-        t_decode_end = timer()
-
-        global serverside_handler
-        t_infer_start = timer()
-        images = serverside_handler.infer(latents)
         t_infer_end = timer()
 
         print("time_infer =",t_infer_end-t_infer_start)
@@ -251,10 +179,6 @@ def get_image_2():
     return send_file(buf, mimetype='image/jpeg')
     """
 
-    filename = 'foo.jpg'
-    return send_file(filename, mimetype='image/jpeg')
-
-
 @app.route("/debugMethod", methods=["GET"])
 def debugMethod():
     # This just does something I want to test...
@@ -275,7 +199,7 @@ from flask import send_file
 
 @app.route('/get_image_file')
 def get_image_file():
-
+    # kinda debug
     filename = 'foo.jpg'
     return send_file(filename, mimetype='image/jpeg')
 
