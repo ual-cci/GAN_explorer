@@ -22,15 +22,18 @@ class Renderer(object):
     Draw image to screen.
     """
 
-    def __init__(self):
-        self.sample_every = 1 # sec
-
+    def __init__(self, show_fps = True):
+        self.show_fps = show_fps
+        self.counter = 0
         return None
 
     def show_frames(self, get_image_function):
         fps = FPS()
+        self.counter = 0
 
         while (True):
+            self.counter += 1
+
             key = cv2.waitKey(1)
             if key == ord('q'):
                 break
@@ -45,7 +48,7 @@ class Renderer(object):
             frame = None
 
             time_start = timer()
-            frame = get_image_function()
+            frame = get_image_function(self.counter)
             time_end = timer()
             print("timer:", (time_end-time_start))
             #fps_val = 1.0 / (time_end-time_start)
@@ -54,13 +57,10 @@ class Renderer(object):
             # so without showing it (imshow), it would be 24-26fps, with it it's cca 20-21fps
             #print(fps_val)
 
-            frame = cv2.putText(frame, "FPS "+'{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            if self.show_fps:
+                frame = cv2.putText(frame, "FPS "+'{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
             cv2.imshow('frame', frame)
 
 
 
-from getter_functions import get_image
-
-renderer = Renderer()
-renderer.show_frames(get_image)

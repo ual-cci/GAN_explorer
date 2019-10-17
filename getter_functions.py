@@ -84,17 +84,15 @@ def get_image_from_server(latents):
 
     return open_cv_image
 
-def get_image():
-    how_many = 1
-    latent_vector_size = 512
-    latents = np.random.randn(how_many, latent_vector_size)
-
+def latent_to_image_localServerSwitch(latents):
+    """
+    This function handles which version we are doing (on server vs. locally)
+    """
     if USE_SERVER_INSTEAD:
         img = get_image_from_server(latents)
     else:
         img = get_image_directly(latents)
     return img
-
 
 """
 while 1:
