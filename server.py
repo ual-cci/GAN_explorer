@@ -223,7 +223,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Project: Real Time Image Generation.')
     parser.add_argument('-foo', help='foo value', default='666')
-    parser.add_argument('-model_path', help='model_path', default='aerials512vectors1024px_snapshot-010200.pkl')
+    parser.add_argument('-model_path', help='model_path', default='models/aerials512vectors1024px_snapshot-010200.pkl')
     args = parser.parse_args()
+
+    ##args.model_path = "models/aerials512vectors1024px_snapshot-010200.pkl"
 
     server = Server(args)
