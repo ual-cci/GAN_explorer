@@ -162,7 +162,8 @@ class Interaction_Handler(object):
 
         self.saved = [None] * 10
 
-        self.renderer.show_frames_game(self.get_interpolated_image_key_input)
+        #\self.renderer.show_frames_game(self.get_interpolated_image_key_input)
+        self.renderer.show_intro(self.get_interpolated_image_key_input)
 
 
 interaction_handler = Interaction_Handler()

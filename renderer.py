@@ -81,8 +81,8 @@ class Renderer(object):
             if key == ord('v'):
                 self.show_fps = not self.show_fps
 
-            if key is not -1:
-                print(key)
+            #if key is not -1:
+            #    print(key)
 
             key_code = ""
             nums = [str(i) for i in list(range(0,9))]
@@ -110,4 +110,44 @@ class Renderer(object):
 
             cv2.imshow('frame', frame)
 
+    def show_intro(self, get_image_function):
+        resolution = 1024
+        end = False
 
+        while (True):
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                end = True
+                break
+            if key == ord(' '):
+                end = False
+                break
+
+            texts = ["<< GAN interaction Game >>", "",
+                     "Controls:",
+                     " - ws: move forwards/backwards",
+                     " - ad: change direction",
+                     " - space: small perturbation of the space",
+                     " - r: randomly place elsewhere",
+                     " - SHIFT: toggles save or load",
+                     " - 0-9: save to/load from a slot number 0-9",
+                     " - v: FPS on/off",
+                     "","","","","","","","","[[ Press space to continue ... ]]"]
+
+            frame = np.zeros((resolution, resolution, 3), np.uint8)
+
+            left = 100
+            top = 140
+            title = True
+            for text in texts:
+                thickness = 2
+                if title:
+                    thickness = 3
+                frame = cv2.putText(frame, text, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), thickness)
+                title = False
+                top += 40
+            cv2.imshow('frame', frame)
+
+        if not end:
+            # Continue!
+            self.show_frames_game(get_image_function)
