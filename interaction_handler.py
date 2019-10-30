@@ -106,6 +106,16 @@ class Interaction_Handler(object):
             if self.saved[load_from_i] is not None:
                 self.p0 = self.saved[load_from_i]
 
+        # Render between all saved you have!
+        # start with position self.saved[0] and go till self.saved[9]
+        # use self.steps
+        # save everything we navigate through to /render_interpolation folder
+
+
+        # Start recording / Stop recording
+        # save every new image we get into /renders folder
+        # (not saving the reduntant images when we don't move) ... (this will work nicely with "space")
+
         # Random jump
         if key_code == "r":
             self.previous = self.p0
@@ -137,15 +147,24 @@ class Interaction_Handler(object):
             if self.selected_feature_i >= self.latent_vector_size:
                 self.selected_feature_i = 0
 
-
         # WS => add to/remove from selected feature
-        move_by = 1.0
         if key_code == "w" or key_code == "s":
             direction = -1.0 # down
             if key_code == "w":
                 direction = +1.0  # up
 
-            self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * move_by
+            self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by
+
+        # +/- change the speed of movement
+        if key_code == "+" or key_code == "-":
+            mult = 0.5
+            if key_code == "+":
+                mult = 2.0
+
+            self.move_by = self.move_by * mult
+        if key_code == "*": # reset speed of movement
+            self.move_by = 1.0
+
 
         #print("feature i=", self.selected_feature_i, ", val=", self.p0[self.selected_feature_i])
         self.p = self.p0
@@ -153,24 +172,27 @@ class Interaction_Handler(object):
         latents = np.asarray([self.p])
         return latent_to_image_localServerSwitch(latents)
 
+
     def start_renderer_key_interact(self):
         self.selected_feature_i = int(self.latent_vector_size / 2.0)
         # self.selected_feature_i = 10 # hmm is there an ordering?
         self.previous = self.p0
+        self.move_by = 1.0
         self.SHIFT = False
         self.ALT = False
 
         self.saved = [None] * 10
 
         #\self.renderer.show_frames_game(self.get_interpolated_image_key_input)
-        self.renderer.show_intro(self.get_interpolated_image_key_input)
+        self.renderer.show_intro(self.get_interpolated_image_key_input, self.get_random_image)
 
 
 interaction_handler = Interaction_Handler()
 interaction_handler.latent_vector_size = get_vec_size_localServerSwitch()
 
-version = "v0b"
-version = "v2"
+version = "v0" # random
+version = "v0b" # random + interpolation
+version = "v2" # "game"
 
 steps_speed = 120
 
@@ -210,5 +232,5 @@ elif version == "v1":
     interaction_handler.start_renderer_interpolation_interact()
 
 elif version == "v2":
-    interaction_handler.shuffle_random_points(steps=1)
+    interaction_handler.shuffle_random_points(steps=steps_speed)
     interaction_handler.start_renderer_key_interact()

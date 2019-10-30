@@ -6,6 +6,8 @@ from threading import Thread
 
 import time
 import collections
+import skimage.transform
+
 
 class FPS:
     def __init__(self,avarageof=50):
@@ -81,12 +83,12 @@ class Renderer(object):
             if key == ord('v'):
                 self.show_fps = not self.show_fps
 
-            #if key is not -1:
-            #    print(key)
+            if key is not -1:
+                print(key)
 
             key_code = ""
             nums = [str(i) for i in list(range(0,9))]
-            allowed_keys = ["w","s","a","d", " ", "r", "e"] + nums
+            allowed_keys = ["w","s","a","d", " ", "r", "e", "+", "-", "*"] + nums
             allowed_keys_ord = [ord(k) for k in allowed_keys]
             if key in allowed_keys_ord:
                 key_code = chr(key)
@@ -110,9 +112,53 @@ class Renderer(object):
 
             cv2.imshow('frame', frame)
 
-    def show_intro(self, get_image_function):
+    def make_a_grid(self, get_image_function, x_times = 4, y_times = 4, resolution_of_one = 256):
+
+        z = 3
+        frame = np.ones((x_times*resolution_of_one, y_times*resolution_of_one, z), np.float)
+        #print("frame ->", frame.shape)
+
+        counter = 0
+
+        for i in range(x_times):
+            for j in range(y_times):
+
+                image = get_image_function(0)
+                #return image
+                image_resized = skimage.transform.resize(image, (resolution_of_one, resolution_of_one))
+                #print("image_resized ->", image_resized.shape)
+
+                # numpy indexing: rows, columns
+                jump_x = i*resolution_of_one
+                jump_y = j*resolution_of_one
+                frame[0+jump_x:resolution_of_one+jump_x, 0+jump_y:resolution_of_one+jump_y] = image_resized[:,:]
+                # awful frame[0+jump_x:resolution_of_one+jump_x, 0+jump_y:resolution_of_one+jump_y, counter%3] = image_resized[:,:, 0]
+
+                counter += 1
+
+        #frame = frame * 0.8
+        return frame
+
+    def show_intro(self, get_image_function, get_grid_image_function):
         resolution = 1024
         end = False
+
+        # Generate background as a grid of samples
+        times = 6
+        frame = self.make_a_grid(get_grid_image_function, times, times, int(resolution/times))
+
+        # Layer over the text
+        texts = ["<< GAN interaction Game >>", "",
+                 "Controls:",
+                 " - ws: move forwards/backwards",
+                 " - ad: change direction",
+                 " - space: small perturbation of the space",
+                 " - r: randomly place elsewhere",
+                 " - SHIFT: toggles save or load",
+                 " - 0-9: save to/load from a slot number 0-9",
+                 " - v: FPS on/off",
+                 "", "", "", "", "", "", "", "", "[[ Press space to continue ... ]]"]
+
 
         while (True):
             key = cv2.waitKey(1)
@@ -122,31 +168,27 @@ class Renderer(object):
             if key == ord(' '):
                 end = False
                 break
+            if key == ord('v'):
+                self.show_fps = not self.show_fps
 
-            texts = ["<< GAN interaction Game >>", "",
-                     "Controls:",
-                     " - ws: move forwards/backwards",
-                     " - ad: change direction",
-                     " - space: small perturbation of the space",
-                     " - r: randomly place elsewhere",
-                     " - SHIFT: toggles save or load",
-                     " - 0-9: save to/load from a slot number 0-9",
-                     " - v: FPS on/off",
-                     "","","","","","","","","[[ Press space to continue ... ]]"]
+            frame_dynamic = frame.copy()
 
-            frame = np.zeros((resolution, resolution, 3), np.uint8)
+            #times = 3
+            #frame_dynamic = self.make_a_grid(get_grid_image_function, times, times, int(resolution / times))
 
-            left = 100
-            top = 140
-            title = True
-            for text in texts:
-                thickness = 2
-                if title:
-                    thickness = 3
-                frame = cv2.putText(frame, text, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), thickness)
-                title = False
-                top += 40
-            cv2.imshow('frame', frame)
+            if self.show_fps:
+                left = 100
+                top = 140
+                title = True
+                for text in texts:
+                    thickness = 2
+                    if title:
+                        thickness = 3
+                    frame_dynamic = cv2.putText(frame_dynamic, text, (left, top), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), thickness)
+                    title = False
+                    top += 40
+
+            cv2.imshow('frame', frame_dynamic)
 
         if not end:
             # Continue!
