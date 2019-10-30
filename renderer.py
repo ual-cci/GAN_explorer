@@ -24,9 +24,12 @@ class Renderer(object):
     Draw image to screen.
     """
 
-    def __init__(self, show_fps = True):
+    def __init__(self, show_fps = True, initial_resolution = 2048):
         self.show_fps = show_fps
         self.counter = 0
+
+        cv2.namedWindow("frame", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
+        cv2.resizeWindow('frame', initial_resolution, initial_resolution)
 
         return None
 
