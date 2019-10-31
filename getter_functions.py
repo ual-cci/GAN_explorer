@@ -91,6 +91,12 @@ class Getter(object):
             img = self.get_image_from_server(latents)
         else:
             img = self.get_image_directly(latents)
+
+
+        # Model produces BGR
+        import cv2
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         return img
 
     def get_vec_size_localServerSwitch(self):
