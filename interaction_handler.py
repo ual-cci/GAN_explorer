@@ -5,16 +5,15 @@ import datetime, time
 from threading import Thread
 
 import renderer
-from getter_functions import latent_to_image_localServerSwitch, get_vec_size_localServerSwitch
-
 class Interaction_Handler(object):
     """
     Do all the interaction tricks here.
     """
 
-    def __init__(self):
+    def __init__(self, getter):
         self.renderer = renderer.Renderer()
         self.renderer.show_fps = True
+        self.getter = getter
 
         self.latent_vector_size = 512
 
@@ -22,7 +21,7 @@ class Interaction_Handler(object):
     def get_random_image(self, counter):
         how_many = 1
         latents = np.random.randn(how_many, self.latent_vector_size)
-        return latent_to_image_localServerSwitch(latents)
+        return self.getter.latent_to_image_localServerSwitch(latents)
 
     def start_renderer_no_interaction(self):
         self.renderer.show_frames(self.get_random_image)
@@ -55,7 +54,7 @@ class Interaction_Handler(object):
         self.p = self.calculate_p(step=self.step)
 
         latents = np.asarray([self.p])
-        return latent_to_image_localServerSwitch(latents)
+        return self.getter.latent_to_image_localServerSwitch(latents)
 
     def start_renderer_interpolation(self):
         self.renderer.show_frames(self.get_interpolated_image)
@@ -73,7 +72,7 @@ class Interaction_Handler(object):
         self.p = self.p0 + (alpha) * (self.p1 - self.p0)
 
         latents = np.asarray([self.p])
-        return latent_to_image_localServerSwitch(latents)
+        return self.getter.latent_to_image_localServerSwitch(latents)
 
     def start_renderer_interpolation_interact(self):
         self.renderer.show_frames(self.get_interpolated_image_OSC_input)
@@ -170,7 +169,7 @@ class Interaction_Handler(object):
         self.p = self.p0
 
         latents = np.asarray([self.p])
-        return latent_to_image_localServerSwitch(latents)
+        return self.getter.latent_to_image_localServerSwitch(latents)
 
 
     def start_renderer_key_interact(self):
@@ -186,51 +185,3 @@ class Interaction_Handler(object):
         #\self.renderer.show_frames_game(self.get_interpolated_image_key_input)
         self.renderer.show_intro(self.get_interpolated_image_key_input, self.get_random_image)
 
-
-interaction_handler = Interaction_Handler()
-interaction_handler.latent_vector_size = get_vec_size_localServerSwitch()
-
-version = "v0" # random
-version = "v0b" # random + interpolation
-version = "v2" # "game"
-
-steps_speed = 120
-
-if version == "v0":
-    interaction_handler.start_renderer_no_interaction()
-
-elif version == "v0b":
-    interaction_handler.shuffle_random_points(steps=steps_speed)
-    interaction_handler.start_renderer_interpolation()
-
-elif version == "v1":
-    OSC_address = '0.0.0.0'
-    OSC_port = 8000
-    OSC_bind = b'/send_gan_i'
-
-    SIGNAL_interactive_i = 0.0
-    SIGNAL_reset_toggle = 0
-
-    # OSC - Interactive listener
-    def callback(*values):
-        global SIGNAL_interactive_i
-        global SIGNAL_reset_toggle
-        print("OSC got values: {}".format(values))
-        # [percentage, model_i, song_i]
-        percentage, reset_toggle = values
-
-        SIGNAL_interactive_i = float(percentage) / 1000.0  # 1000 = 100% = 1.0
-        SIGNAL_reset_toggle = int(reset_toggle)
-
-    print("Also starting a OSC listener at ", OSC_address, OSC_port, OSC_bind, "to listen for interactive signal (0-1000).")
-    from oscpy.server import OSCThreadServer
-    osc = OSCThreadServer()
-    sock = osc.listen(address=OSC_address, port=OSC_port, default=True)
-    osc.bind(OSC_bind, callback)
-
-    interaction_handler.shuffle_random_points(steps=steps_speed)
-    interaction_handler.start_renderer_interpolation_interact()
-
-elif version == "v2":
-    interaction_handler.shuffle_random_points(steps=steps_speed)
-    interaction_handler.start_renderer_key_interact()
