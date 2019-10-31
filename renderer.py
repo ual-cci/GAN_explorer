@@ -91,7 +91,7 @@ class Renderer(object):
 
             key_code = ""
             nums = [str(i) for i in list(range(0,9))]
-            allowed_keys = ["w","s","a","d", " ", "r", "e", "+", "-", "*"] + nums
+            allowed_keys = ["w","s","a","d", " ", "r", "e", "+", "-", "*", 'x'] + nums
             allowed_keys_ord = [ord(k) for k in allowed_keys]
             if key in allowed_keys_ord:
                 key_code = chr(key)

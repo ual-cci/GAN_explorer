@@ -16,6 +16,7 @@ class Interaction_Handler(object):
         self.getter = getter
 
         self.latent_vector_size = 512
+        self.saved_already = 0
 
     # v0 - pure random
     def get_random_image(self, counter):
@@ -169,7 +170,18 @@ class Interaction_Handler(object):
         self.p = self.p0
 
         latents = np.asarray([self.p])
-        return self.getter.latent_to_image_localServerSwitch(latents)
+
+        image = self.getter.latent_to_image_localServerSwitch(latents)
+
+        # Simple save in HQ (post-render)
+        if key_code == "x":
+            filename = "saved_" + str(self.saved_already).zfill(4) + ".png"
+            self.saved_already += 1
+            print("Saving in good quality as ", filename)
+
+            cv2.imwrite(filename, image)
+
+        return image
 
 
     def start_renderer_key_interact(self):
