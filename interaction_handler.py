@@ -14,6 +14,10 @@ class Interaction_Handler(object):
         self.renderer = renderer.Renderer()
         self.renderer.show_fps = True
         self.getter = getter
+        self.game_is_in_interpolating_mode = False
+        self.saved_first_index_selected = -1
+        self.saved_second_index_selected = -1
+        self.counter_start = 0
 
         self.latent_vector_size = 512
         self.saved_already = 0
@@ -78,12 +82,56 @@ class Interaction_Handler(object):
     def start_renderer_interpolation_interact(self):
         self.renderer.show_frames(self.get_interpolated_image_OSC_input)
 
+    def select_saved_latents(self):
+        suceeded = False
+
+        last_index = self.saved_second_index_selected
+
+        total_saved_latents = 0
+        valid_indices = []
+        for idx in range(len(self.saved)):
+            if self.saved[idx] is not None:
+                total_saved_latents += 1
+                valid_indices.append(idx)
+
+        print("We have", total_saved_latents, "total saved latents to interpolate between. valid_indices=",valid_indices)
+
+        if total_saved_latents >= 2:
+            suceeded = True
+
+            if last_index is -1: # aka this is for the first time
+                self.saved_first_index_selected = valid_indices[0]
+                self.saved_second_index_selected = valid_indices[1]
+            else:
+                position_of_the_last_one = valid_indices.index(last_index)
+                self.saved_first_index_selected = valid_indices[position_of_the_last_one]
+
+                position_of_the_second_one = position_of_the_last_one + 1
+                if position_of_the_second_one >= len(valid_indices):
+                    position_of_the_second_one = 0
+
+                self.saved_second_index_selected = valid_indices[position_of_the_second_one]
+
+            print("set indices as self.saved_first_index_selected=",self.saved_first_index_selected,", self.saved_second_index_selected=",self.saved_second_index_selected)
+
+        if suceeded:
+            self.set_saved_values_as_latents_to_interpolate(self.saved_first_index_selected, self.saved_second_index_selected)
+        else:
+            # if we don't have anything to intepolate between ... don't do it
+            self.game_is_in_interpolating_mode = False
+
+    def set_saved_values_as_latents_to_interpolate(self, first_i, second_i):
+        self.p0 = self.saved[first_i]
+        self.p1 = self.saved[second_i]
+
     # v2 - controlled using wsad
     def get_interpolated_image_key_input(self, counter, key_code, key_ord):
         # ignore counter
         # look at the key command
         #if key_ord is not -1:
         #    print("key pressed (code, ord)", key_code, key_ord)
+
+        save_frame_to_file = False
 
         # Save & Load
         if key_ord is 225 or key_ord is 226:
@@ -110,11 +158,36 @@ class Interaction_Handler(object):
         # start with position self.saved[0] and go till self.saved[9]
         # use self.steps
         # save everything we navigate through to /render_interpolation folder
+        if key_code == "=":
+            # Start interpolation
+            self.game_is_in_interpolating_mode = not self.game_is_in_interpolating_mode
+
+            if self.game_is_in_interpolating_mode:
+                self.counter_start = counter  # so that we always start with 0
+                self.saved_first_index_selected = -1
+                self.saved_second_index_selected = -1 # restart from the first one again
+            else:
+                self.p0 = self.p # to start where we now ended at
+
+
+        if self.game_is_in_interpolating_mode:
+
+            self.step = (counter-self.counter_start) % self.steps
+            #print(counter, counter-self.counter_start, self.step, "from", self.steps)
+
+            if self.step == 0:
+                self.select_saved_latents()
+                #self.shuffle_random_points(self.steps)
+            self.p = self.calculate_p(step=self.step)
+
 
 
         # Start recording / Stop recording
         # save every new image we get into /renders folder
         # (not saving the reduntant images when we don't move) ... (this will work nicely with "space")
+
+        if key_code == "x":
+            save_frame_to_file = True
 
         # Random jump
         if key_code == "r":
@@ -167,14 +240,15 @@ class Interaction_Handler(object):
 
 
         #print("feature i=", self.selected_feature_i, ", val=", self.p0[self.selected_feature_i])
-        self.p = self.p0
+        if not self.game_is_in_interpolating_mode:
+            self.p = self.p0
 
         latents = np.asarray([self.p])
 
         image = self.getter.latent_to_image_localServerSwitch(latents)
 
         # Simple save in HQ (post-render)
-        if key_code == "x":
+        if save_frame_to_file:
             filename = "saved_" + str(self.saved_already).zfill(4) + ".png"
             self.saved_already += 1
             print("Saving in good quality as ", filename)
