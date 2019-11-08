@@ -130,7 +130,7 @@ class Interaction_Handler(object):
         # look at the key command
         #if key_ord is not -1:
         #    print("key pressed (code, ord)", key_code, key_ord)
-
+        message = ""
         save_frame_to_file = False
 
         # Save & Load
@@ -146,11 +146,13 @@ class Interaction_Handler(object):
             # SAVE on position
             save_to_i = int(key_code)
             print("saving to ", save_to_i)
+            message = "Saved to "+str(save_to_i)
             self.saved[save_to_i] = self.p0
         if not self.SHIFT and key_code in nums:
             # LOAD from position
             load_from_i = int(key_code)
             print("loading from ", load_from_i)
+            message = "Loading from " + str(load_from_i)
             if self.saved[load_from_i] is not None:
                 self.p0 = self.saved[load_from_i]
 
@@ -171,7 +173,7 @@ class Interaction_Handler(object):
 
 
         if self.game_is_in_interpolating_mode:
-
+            message = "Interpolation"
             self.step = (counter-self.counter_start) % self.steps
             #print(counter, counter-self.counter_start, self.step, "from", self.steps)
 
@@ -191,17 +193,20 @@ class Interaction_Handler(object):
 
         # Random jump
         if key_code == "r":
+            message = "Random"
             self.previous = self.p0
             self.shuffle_random_points(self.steps)
 
         # One undo
         if key_code == "e":
+            message = "Previous"
             tmp = self.p0
             self.p0 = self.previous
             self.previous = tmp
 
         # small jump
         if key_code == " ":
+            message = "Jump"
             save_p0 = self.p0
             self.shuffle_random_points(self.steps)
 
@@ -249,13 +254,14 @@ class Interaction_Handler(object):
 
         # Simple save in HQ (post-render)
         if save_frame_to_file:
+            message = "Saved file"
             filename = "saved_" + str(self.saved_already).zfill(4) + ".png"
             self.saved_already += 1
             print("Saving in good quality as ", filename)
 
             cv2.imwrite(filename, image)
 
-        return image
+        return image, message
 
 
     def start_renderer_key_interact(self):

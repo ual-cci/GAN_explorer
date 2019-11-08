@@ -27,6 +27,7 @@ class Renderer(object):
     def __init__(self, show_fps = True, initial_resolution = 1024):
         self.show_fps = show_fps
         self.counter = 0
+        self.initial_resolution = initial_resolution
 
         cv2.namedWindow("frame", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
         cv2.resizeWindow('frame', initial_resolution, initial_resolution)
@@ -76,6 +77,7 @@ class Renderer(object):
         # This function is made with WASD and SPACE control scheme in mind
         fps = FPS()
         self.counter = 0
+        message = ""
 
         while (True):
             self.counter += 1
@@ -101,7 +103,10 @@ class Renderer(object):
             frame = None
 
             time_start = timer()
-            frame = get_image_function(self.counter, key_code, key)
+            frame, new_message = get_image_function(self.counter, key_code, key)
+            if len(new_message) > 0:
+                message = new_message
+
             time_end = timer()
             #print("timer:", (time_end-time_start))
             #fps_val = 1.0 / (time_end-time_start)
@@ -111,7 +116,16 @@ class Renderer(object):
             #print(fps_val)
 
             if self.show_fps:
-                frame = cv2.putText(frame, "FPS "+'{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                if len(message) > 0:
+                    text = message
+                    textsize = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+                    textX = int((frame.shape[1] - textsize[0]) / 2)
+                    textY = int((frame.shape[0] + textsize[1]) / 2)
+
+                    frame = cv2.putText(frame, text, (self.initial_resolution - textsize[0] + 20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                    #frame = cv2.putText(frame, text, (textX, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+                frame = cv2.putText(frame, "FPS " + '{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
             cv2.imshow('frame', frame)
 
