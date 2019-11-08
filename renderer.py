@@ -24,7 +24,7 @@ class Renderer(object):
     Draw image to screen.
     """
 
-    def __init__(self, show_fps = True, initial_resolution = 2048):
+    def __init__(self, show_fps = True, initial_resolution = 1024):
         self.show_fps = show_fps
         self.counter = 0
 
