@@ -215,8 +215,12 @@ class Interaction_Handler(object):
 
         # AD => selecting a feature (0 to self.latent_vector_size and then loop)
         if key_code == "a" or key_code == "d":
+            message = "a"
+
             direction = -1 # left
             if key_code == "d":
+                message = "d"
+
                 direction = +1  # right
             self.selected_feature_i = self.selected_feature_i + direction
 
@@ -227,8 +231,12 @@ class Interaction_Handler(object):
 
         # WS => add to/remove from selected feature
         if key_code == "w" or key_code == "s":
+            message = "s"
+
             direction = -1.0 # down
             if key_code == "w":
+                message = "w"
+
                 direction = +1.0  # up
 
             self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by

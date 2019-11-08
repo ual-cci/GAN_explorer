@@ -118,11 +118,11 @@ class Renderer(object):
             if self.show_fps:
                 if len(message) > 0:
                     text = message
-                    textsize = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
+                    textsize = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
                     textX = int((frame.shape[1] - textsize[0]) / 2)
                     textY = int((frame.shape[0] + textsize[1]) / 2)
 
-                    frame = cv2.putText(frame, text, (self.initial_resolution - textsize[0] + 20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                    frame = cv2.putText(frame, text, (self.initial_resolution - textsize[0] - 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                     #frame = cv2.putText(frame, text, (textX, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
                 frame = cv2.putText(frame, "FPS " + '{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
