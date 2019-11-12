@@ -22,6 +22,8 @@ class Interaction_Handler(object):
         self.latent_vector_size = 512
         self.saved_already = 0
 
+        self.keep_p1 = False # special case for v0b
+
     # v0 - pure random
     def get_random_image(self, counter):
         how_many = 1
@@ -34,9 +36,16 @@ class Interaction_Handler(object):
     # v0b - interpolate between two random points, no interaction still really
     def shuffle_random_points(self, steps = 120):
         how_many = 2
+
+        if self.keep_p1:
+            self.tmp_save_p1 = self.p1
+
         latents = np.random.randn(how_many, self.latent_vector_size)
 
         self.p0 = latents[0]
+        if self.keep_p1:
+            self.p0 = self.tmp_save_p1
+
         self.p1 = latents[1]
         self.step = 0
         self.steps = steps

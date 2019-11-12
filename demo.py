@@ -33,6 +33,7 @@ if version == "v0":
 
 elif version == "v0b":
     interaction_handler.shuffle_random_points(steps=steps_speed)
+    interaction_handler.keep_p1 = True # << optional
     interaction_handler.start_renderer_interpolation()
 
 elif version == "v1":
