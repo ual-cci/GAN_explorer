@@ -233,10 +233,22 @@ class Interaction_Handler(object):
                 direction = +1  # right
             self.selected_feature_i = self.selected_feature_i + direction
 
+
             if self.selected_feature_i < 0:
                 self.selected_feature_i = self.latent_vector_size - 1
             if self.selected_feature_i >= self.latent_vector_size:
                 self.selected_feature_i = 0
+
+
+
+            # combine A-D with W-S ? optional
+            """
+            direction = -1.0 # down - d
+            if key_code == "a":
+                direction = +1.0  # up - a
+            self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by
+            """
+
 
         # WS => add to/remove from selected feature
         if key_code == "w" or key_code == "s":
