@@ -29,8 +29,8 @@ class Renderer(object):
         self.counter = 0
         self.initial_resolution = initial_resolution
 
-        cv2.namedWindow("frame", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
-        cv2.resizeWindow('frame', initial_resolution, initial_resolution)
+        #cv2.namedWindow("frame", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
+        #cv2.resizeWindow('frame', initial_resolution, initial_resolution)
 
         return None
 
