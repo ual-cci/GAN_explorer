@@ -1,5 +1,7 @@
 # GAN_handler
-To have a simple (one-two files) handler for a trained GAN model for easy interaction.
+Vitek's interactive GAN handler.
+
+Idea is to have a (relatively) simple handler for a trained GAN model with easy interaction.
 
 ## Install 
 
