@@ -12,7 +12,7 @@ Prerequisite libraries:
 
 Model data:
 
-- put your own trained Progressively Growing GAN model (or using the official pretrained ones) in `models/`
+- put your own trained Progressively Growing GAN / StyleGAN2 model (or using the official pretrained ones) in `models/`
 
 ## Demo:
 
