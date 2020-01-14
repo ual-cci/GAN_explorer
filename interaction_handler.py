@@ -200,6 +200,11 @@ class Interaction_Handler(object):
         if key_code == "x":
             save_frame_to_file = True
 
+        if key_code == "n":
+            print("Noise relevant to StyleGan2 toggled")
+            self.getter.toggleStylegan2Noise()
+
+
         # Random jump
         if key_code == "r":
             message = "Random"

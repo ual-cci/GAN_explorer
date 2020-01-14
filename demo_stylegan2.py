@@ -4,18 +4,14 @@
 from getter_functions import Getter
 from interaction_handler import Interaction_Handler
 
-
-
 import mock
 
 args = mock.Mock()
-args.architecture = "ProgressiveGAN"
-args.model_path = 'models/karras2018iclr-celebahq-1024x1024.pkl' # colors shifted ...
-args.model_path = 'models/karras2018iclr-lsun-airplane-256x256.pkl'
-
-args.model_path = 'models/aerials128vectors256px_-snapshot-007440.pkl'  # 50fps ==> still 50fps
-args.model_path = 'models/aerials512vectors1024px_snapshot-010200.pkl' # 20fps ==> 15fps
-args.model_path = 'models/grayjungledwellers-008400.pkl'               # 33fps (BW) ==> 28fps
+args.architecture = "StyleGAN2"
+args.model_path = "../stylegan2/stylegan2-ffhq-config-f.pkl"
+#args.model_path = "models/stylegan2models/network-snapshot-007782.pkl"
+#args.model_path = "models/stylegan2models/network-snapshot-006512.pkl"
+args.model_path = "models/stylegan2models/network-snapshot-005243.pkl"
 
 getter = Getter(args)
 

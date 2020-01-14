@@ -8,6 +8,7 @@ import requests
 from io import BytesIO
 
 import progressive_gan_handler
+import stylegan2_handler
 from settings import Settings
 
 
@@ -19,6 +20,7 @@ class Getter(object):
     def __init__(self, args, USE_SERVER_INSTEAD = False):
 
         self.USE_SERVER_INSTEAD = USE_SERVER_INSTEAD
+        self.architecture = args.architecture
 
         if self.USE_SERVER_INSTEAD:
             # = HANDSHAKE =================================================
@@ -39,7 +41,14 @@ class Getter(object):
         self.serverside_handler = None
 
         if not self.USE_SERVER_INSTEAD:
-            self.serverside_handler = progressive_gan_handler.ProgressiveGAN_Handler(settings, args)
+            if self.architecture == "ProgressiveGAN":
+                self.serverside_handler = progressive_gan_handler.ProgressiveGAN_Handler(settings, args)
+            if self.architecture == "StyleGAN2":
+                self.serverside_handler = stylegan2_handler.StyleGAN2_Handler(settings, args)
+
+    def toggleStylegan2Noise(self):
+        if self.architecture == "StyleGAN2":
+            self.serverside_handler.toggleStylegan2Noise()
 
     def get_image_directly(self, latents):
         # start = timer()
