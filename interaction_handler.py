@@ -24,6 +24,8 @@ class Interaction_Handler(object):
 
         self.keep_p1 = False # special case for v0b
 
+        self.toggle_save_frames_in_loop = False
+
     # v0 - pure random
     def get_random_image(self, counter):
         how_many = 1
@@ -123,6 +125,11 @@ class Interaction_Handler(object):
 
             print("set indices as self.saved_first_index_selected=",self.saved_first_index_selected,", self.saved_second_index_selected=",self.saved_second_index_selected)
 
+        if (not last_index == -1) and valid_indices[1] == self.saved_second_index_selected:
+            print("LAST FRAME")
+            last_index = -1
+            self.toggle_save_frames_in_loop = False
+
         if suceeded:
             self.set_saved_values_as_latents_to_interpolate(self.saved_first_index_selected, self.saved_second_index_selected)
         else:
@@ -180,8 +187,14 @@ class Interaction_Handler(object):
             else:
                 self.p0 = self.p # to start where we now ended at
 
+        if key_code == "]":
+            self.toggle_save_frames_in_loop = not self.toggle_save_frames_in_loop
+            print("When interpolating with =, save frames =",self.toggle_save_frames_in_loop)
 
         if self.game_is_in_interpolating_mode:
+            if self.toggle_save_frames_in_loop:
+                save_frame_to_file = True
+
             message = "Interpolation"
             self.step = (counter-self.counter_start) % self.steps
             #print(counter, counter-self.counter_start, self.step, "from", self.steps)
@@ -286,10 +299,12 @@ class Interaction_Handler(object):
 
         image = self.getter.latent_to_image_localServerSwitch(latents)
 
+
         # Simple save in HQ (post-render)
         if save_frame_to_file:
             message = "Saved file"
-            filename = "saved_" + str(self.saved_already).zfill(4) + ".png"
+            folder = "renders/"
+            filename = folder+"saved_" + str(self.saved_already).zfill(4) + ".png"
             self.saved_already += 1
             print("Saving in good quality as ", filename)
 
