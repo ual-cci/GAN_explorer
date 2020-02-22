@@ -70,7 +70,7 @@ class Renderer(object):
             if self.show_fps:
                 frame = cv2.putText(frame, "FPS "+'{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            cv2.imshow('frame', frame)
+            cv2.imshow('Interactive Machine Learning - GAN', frame)
 
 
     def show_frames_game(self, get_image_function):
@@ -127,7 +127,7 @@ class Renderer(object):
 
                 frame = cv2.putText(frame, "FPS " + '{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            cv2.imshow('frame', frame)
+            cv2.imshow('Interactive Machine Learning - GAN', frame)
 
     def make_a_grid(self, get_image_function, x_times = 4, y_times = 4, resolution_of_one = 256):
 
@@ -205,7 +205,7 @@ class Renderer(object):
                     title = False
                     top += 40
 
-            cv2.imshow('frame', frame_dynamic)
+            cv2.imshow('Interactive Machine Learning - GAN', frame_dynamic)
 
         if not end:
             # Continue!
