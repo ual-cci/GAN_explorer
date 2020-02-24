@@ -3,6 +3,8 @@ import numpy as np
 from timeit import default_timer as timer
 import datetime, time
 from threading import Thread
+import os, os.path
+import glob
 
 import renderer
 class Interaction_Handler(object):
@@ -290,6 +292,53 @@ class Interaction_Handler(object):
         if key_code == "*": # reset speed of movement
             self.move_by = 1.0
 
+        if key_code == "m":
+            print("Randomizing the order!")
+            self.randomize_saved_order()
+
+        # Save existing latents into a folder:
+        if key_code == "k":  # save latents
+            print("Saving latents!")
+            #print("Saving:", self.saved)
+            path = "latents/save/"
+            if not os.path.exists(path):
+                os.mkdir(path)
+
+            # get name of the last file in the folder and append
+            max_file_int = 0
+            for file in os.listdir(path):
+                if file.endswith(".txt"):
+                    file_int = int( file.replace(".txt", "") )
+                    max_file_int = max(max_file_int, file_int)
+            max_file_int+=1
+
+            for latent in self.saved:
+                if latent is not None:
+                    target = path+str(max_file_int).zfill(5)
+                    print("Saving to", target)
+
+                    np.savetxt(target+".txt", latent)
+
+                    img_tmp = self.getter.latent_to_image_localServerSwitch(np.asarray([latent]))
+                    cv2.imwrite(target+".png", img_tmp)
+                    del img_tmp
+
+                    max_file_int += 1
+
+        # Load latents from a folder:
+        if key_code == "l": # load latents
+            self.saved = []
+            path = "latents/load/"
+
+            for file in os.listdir(path):
+                if file.endswith(".txt"):
+                    latent = np.loadtxt(os.path.join(path, file))
+                    self.saved.append(latent)
+
+            print("Loaded in total:", len(self.saved))
+            while len(self.saved) < 10:
+                self.saved.append(None)
+
 
         #print("feature i=", self.selected_feature_i, ", val=", self.p0[self.selected_feature_i])
         if not self.game_is_in_interpolating_mode:
@@ -304,6 +353,9 @@ class Interaction_Handler(object):
         if save_frame_to_file:
             message = "Saved file"
             folder = "renders/"
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+
             filename = folder+"saved_" + str(self.saved_already).zfill(4) + ".png"
             self.saved_already += 1
             print("Saving in good quality as ", filename)
@@ -326,3 +378,6 @@ class Interaction_Handler(object):
         #\self.renderer.show_frames_game(self.get_interpolated_image_key_input)
         self.renderer.show_intro(self.get_interpolated_image_key_input, self.get_random_image)
 
+    def randomize_saved_order(self):
+        # Randomize the order of current latents (ones in self.saved) (they can be loaded by "l" and re-saved again by "k")
+        np.random.shuffle(self.saved)
