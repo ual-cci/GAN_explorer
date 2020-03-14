@@ -1,1 +1,1 @@
-Sources for when pickle loads the models ... Temporarily just download from https://github.com/NVlabs/stylegan2/tree/master/dnnlib 
+Sources for when pickle loads the models ... Temporarily just download from https://github.com/NVlabs/stylegan2/tree/master/dnnlib?version=7d3145d 

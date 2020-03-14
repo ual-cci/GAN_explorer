@@ -8,7 +8,6 @@ import requests
 from io import BytesIO
 
 import progressive_gan_handler
-import stylegan2_handler
 from settings import Settings
 
 
@@ -44,6 +43,7 @@ class Getter(object):
             if self.architecture == "ProgressiveGAN":
                 self.serverside_handler = progressive_gan_handler.ProgressiveGAN_Handler(settings, args)
             if self.architecture == "StyleGAN2":
+                import stylegan2_handler
                 self.serverside_handler = stylegan2_handler.StyleGAN2_Handler(settings, args)
 
     def toggleStylegan2Noise(self):

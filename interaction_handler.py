@@ -151,8 +151,8 @@ class Interaction_Handler(object):
         message = ""
         save_frame_to_file = False
 
-        # Save & Load
-        if key_ord is 225 or key_ord is 226:
+        # Save & Load - shift or z
+        if key_ord is 225 or key_ord is 226 or key_code == "z":
             self.SHIFT = not self.SHIFT
             print("Saving ON?:", self.SHIFT)
         if key_ord is 233 or key_ord is 234:
@@ -300,6 +300,9 @@ class Interaction_Handler(object):
         if key_code == "k":  # save latents
             print("Saving latents!")
             #print("Saving:", self.saved)
+            path = "latents/"
+            if not os.path.exists(path):
+                os.mkdir(path)
             path = "latents/save/"
             if not os.path.exists(path):
                 os.mkdir(path)
@@ -328,7 +331,12 @@ class Interaction_Handler(object):
         # Load latents from a folder:
         if key_code == "l": # load latents
             self.saved = []
+            path = "latents/"
+            if not os.path.exists(path):
+                os.mkdir(path)
             path = "latents/load/"
+            if not os.path.exists(path):
+                os.mkdir(path)
 
             for file in os.listdir(path):
                 if file.endswith(".txt"):
