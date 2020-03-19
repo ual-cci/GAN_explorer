@@ -18,8 +18,9 @@ args.model_path = 'models/aerials512vectors1024px_snapshot-010200.pkl' # 20fps =
 args.model_path = 'models/grayjungledwellers-008400.pkl'               # 33fps (BW) ==> 28fps
 
 getter = Getter(args)
+initial_resolution = 1024
 
-interaction_handler = Interaction_Handler(getter)
+interaction_handler = Interaction_Handler(getter, initial_resolution)
 interaction_handler.latent_vector_size = getter.get_vec_size_localServerSwitch()
 
 version = "v0" # random

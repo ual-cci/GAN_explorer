@@ -97,6 +97,14 @@ class Renderer(object):
             allowed_keys_ord = [ord(k) for k in allowed_keys]
             if key in allowed_keys_ord:
                 key_code = chr(key)
+            else:
+                # DEBUG PART for key press detections:
+                if key != -1:
+                    print("not allowed key detected:",key)
+                    try:
+                        print("this might be",chr(key))
+                    except Exception as e:
+                        print("err trying to call chr(key)", e)
 
 
             # get image
