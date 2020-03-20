@@ -9,6 +9,7 @@ Prerequisite libraries:
 
 - `sudo apt-get install python-opencv`
 - `pip install opencv-python requests matplotlib Pillow mock oscpy scikit-image`
+- pygame for midi controller - `python3 -m pip install -U pygame --user` (and on linux I had to also: `sudo apt-get install -y libasound2-plugins`)
 
 Model data:
 
