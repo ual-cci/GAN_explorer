@@ -156,5 +156,10 @@ if __name__ == '__main__':
     except:
         device_id = None
 
+    # on my UBUNTU install:
+    import platform
+    if 'linux' in platform.system().lower(): # linux / windows
+        device_id = 3
+
     midi_handler = MIDI_Input_Handler(device_id)
     midi_handler.input_loop()
