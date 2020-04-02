@@ -28,6 +28,11 @@ class Interaction_Handler(object):
 
         self.toggle_save_frames_in_loop = False
 
+        # network hacking
+        self.multiplier_value = 1.0
+        self.target_tensor = 0
+        self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
+
     # v0 - pure random
     def get_random_image(self, counter):
         how_many = 1
@@ -281,6 +286,30 @@ class Interaction_Handler(object):
                 direction = +1.0  # up
 
             self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by
+
+        # f / g Allow editing of the GAN network weights on the fly!
+        # t swaps which tensor this influences
+
+        if key_code == "f":
+            target_tensor = self.target_tensors[self.target_tensor]
+            #self.multiplier_value += 0.1
+            self.multiplier_value *= 1.5
+            print("self.multiplier_value", self.multiplier_value)
+            function = self.getter.serverside_handler.times_a
+            self.getter.serverside_handler.change_net(target_tensor, function, self.multiplier_value)
+
+        if key_code == "g":
+            target_tensor = self.target_tensors[self.target_tensor]
+            self.multiplier_value /= 1.5
+            print("self.multiplier_value", self.multiplier_value)
+            function = self.getter.serverside_handler.times_a
+            self.getter.serverside_handler.change_net(target_tensor, function, self.multiplier_value)
+
+        if key_code == "t":
+            self.target_tensor += 1
+            if self.target_tensor >= len(self.target_tensors):
+                self.target_tensor = 0
+            print("selected target_tensor", self.target_tensors[self.target_tensor])
 
         # +/- change the speed of movement
         if key_code == "+" or key_code == "-":

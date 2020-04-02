@@ -28,6 +28,9 @@ class ProgressiveGAN_Handler(object):
         self._example_input = self.example_input(verbose=False)
         self._example_output = self.infer(self._example_input, verbose=False)
 
+        # Network altering:
+        self.original_weights = {}
+
     def _create_model(self, model_path):
         tf.InteractiveSession()
         with open(model_path, 'rb') as file:
@@ -90,6 +93,31 @@ class ProgressiveGAN_Handler(object):
     def save_image(self, image, name="foo.jpg"):
         im = PIL.Image.fromarray(image)
         im.save(name)
+
+    def times_a(self, a, np_arr):
+        return a * np_arr
+
+    def change_net(self, target_tensor, operation, *kwargs):
+        # PS: Changing the weights is faster then generating an image... (which is good news)
+        np_arr = None
+        net = self._Gs
+
+        # restore old weights
+        for tensor_key in self.original_weights.keys():
+            orig_val = self.original_weights[tensor_key]
+            net.set_var(tensor_key, orig_val)
+
+        if target_tensor not in self.original_weights:
+            # we haven't change this tensor yet - load it from the NN
+            np_arr = net.get_var(target_tensor)  # <slow
+            self.original_weights[target_tensor] = np_arr
+
+        np_arr = self.original_weights[target_tensor]
+        print("tensor as np_arr:", type(np_arr), np_arr.shape)
+        np_arr = operation(np_arr, kwargs)
+        net.set_var(target_tensor, np_arr)
+
+        self._Gs = net
 
 
 # Example of usage:
