@@ -41,7 +41,21 @@ class ProgressiveGAN_Handler(object):
             proto_ver = proto_op[1]
             print("Pickled with version", proto_ver)
 
-            self._G, self._D, self._Gs = pickle.load(file)
+            loaded_networks = pickle.load(file)
+            if isinstance(loaded_networks, tuple):
+                # Original model saves a tuple (Generator, Discriminator, weighted avg Generator)
+                self._G, self._D, self._Gs = loaded_networks
+            else:
+                self._Gs = loaded_networks
+
+            """
+            # DEBUG if we wanted to save something!
+            def save_pkl(obj, filename):
+                with open(filename, 'wb') as file:
+                    pickle.dump(obj, file, protocol=pickle.HIGHEST_PROTOCOL)
+
+            save_pkl(self._Gs, "_GsOnly.pkl")
+            """
 
     def report(self):
 
