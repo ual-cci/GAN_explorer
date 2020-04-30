@@ -7,6 +7,8 @@ import os, os.path
 import glob
 
 import renderer
+import reconnector
+
 class Interaction_Handler(object):
     """
     Do all the interaction tricks here.
@@ -311,6 +313,22 @@ class Interaction_Handler(object):
             if self.target_tensor >= len(self.target_tensors):
                 self.target_tensor = 0
             print("selected target_tensor", self.target_tensors[self.target_tensor])
+
+        if key_code == "h":
+            print("RECONNECTOR")
+            target_tensor = self.target_tensors[self.target_tensor]
+
+            #target_tensor = "16x16/Conv0_up/weight"  # "128x128/Conv0_up/weight"
+            percent_change = 30
+            #percent_change = 15
+            self.getter.serverside_handler.reconnect(target_tensor, percent_change)
+            print("Reconnected", percent_change,"% of conv kernels in", target_tensor)
+
+        if key_code == "u":
+            print("HAXED NET SAVER")
+            self.getter.serverside_handler.savenet()
+
+
 
         # +/- change the speed of movement
         if key_code == "+" or key_code == "-":

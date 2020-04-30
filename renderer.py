@@ -93,7 +93,7 @@ class Renderer(object):
 
             key_code = ""
             nums = [str(i) for i in list(range(0,9))]
-            allowed_keys = ["w","s","a","d", "n", " ", "f","g","t", "l", "k", "m", "r", "e", "+", "-", "*", "=", "]", 'x', "z"] + nums
+            allowed_keys = ["w","s","a","d", "n", " ", "f","g","t","h","u", "l", "k", "m", "r", "e", "+", "-", "*", "=", "]", 'x', "z"] + nums
             allowed_keys_ord = [ord(k) for k in allowed_keys]
             if key in allowed_keys_ord:
                 key_code = chr(key)
@@ -182,6 +182,7 @@ class Renderer(object):
                  " - SHIFT: toggles save or load",
                  " - 0-9: save to/load from a slot number 0-9",
                  " - v: FPS on/off",
+                 " - fg (t) h: NN hacks",
                  "", "", "", "", "", "", "", "", "[[ Press space to continue ... ]]"]
 
 

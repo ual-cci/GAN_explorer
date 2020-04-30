@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 from timeit import default_timer as timer
 import PIL.Image
-
+import reconnector
 
 class ProgressiveGAN_Handler(object):
     """
@@ -133,6 +133,18 @@ class ProgressiveGAN_Handler(object):
 
         self._Gs = net
 
+    def reconnect(self, target_tensor, percent_change = 30):
+        net = self._Gs
+        editednet = reconnector.reconnect(net, target_tensor, percent_change)
+        self._Gs = editednet
+
+    def savenet(self):
+        # usually haxed net
+        net = self._Gs
+        def save_pkl(obj, filename):
+            with open(filename, 'wb') as file:
+                pickle.dump(obj, file, protocol=pickle.HIGHEST_PROTOCOL)
+        save_pkl(self._Gs, "haxed_gs.pkl")
 
 # Example of usage:
 """
