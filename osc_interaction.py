@@ -12,16 +12,24 @@ class OSCSender(object):
 
     def onChangeSend(self,x):
 
-        percentage = cv2.getTrackbarPos('Percentage', 'InteractiveMusicGeneration')
-        reset_toggle = cv2.getTrackbarPos('Reset points', 'InteractiveMusicGeneration')
+        percentage = cv2.getTrackbarPos('Percentage', self.window_name)
+        reset_toggle = cv2.getTrackbarPos('Reset points', self.window_name)
 
-        print("Sending message=", [percentage, reset_toggle])
-        self.osc.send_message(b'/send_gan_i', [percentage, reset_toggle])
+        # TEST:
+        latent_vector_size = 512
+        signal_latent = np.random.randn(1, latent_vector_size)[0]
+        signal_latent = [float(v) for v in signal_latent]
+
+        print("Sending message=", [percentage, reset_toggle, len(signal_latent)])
+        self.osc.send_message(b'/send_gan_i', [percentage, reset_toggle] + signal_latent)
 
     def __init__(self):
-        address = "127.0.0.1"
+        #address = "127.0.0.1"
+        #port = 8000
+        address = '0.0.0.0'
         port = 8000
         self.osc = OSCClient(address, port)
+        self.window_name = 'Control'
 
     def start_window_rendering(self):
 
@@ -34,22 +42,22 @@ class OSCSender(object):
         fontColor = (128, 128, 128)
         lineType = 2
 
-        cv2.namedWindow('InteractiveMusicGeneration')
+        cv2.namedWindow('Control')
 
         # create trackbars for color change
-        cv2.createTrackbar('Percentage', 'InteractiveMusicGeneration', 0, 1000, self.onChangeSend)
-        cv2.createTrackbar('Reset points', 'InteractiveMusicGeneration', 0, 1, self.onChangeSend)
+        cv2.createTrackbar('Percentage', self.window_name, 0, 1000, self.onChangeSend)
+        cv2.createTrackbar('Reset points', self.window_name, 0, 1, self.onChangeSend)
 
         while (1):
             # also keep another inf. loop
 
-            cv2.imshow('InteractiveMusicGeneration', img)
+            cv2.imshow('Control', img)
             k = cv2.waitKey(1) & 0xFF
             if k == 27:
                 break
 
             # get current positions of four trackbars
-            r = cv2.getTrackbarPos('Percentage', 'InteractiveMusicGeneration')
+            r = cv2.getTrackbarPos('Percentage', self.window_name)
             r = int(r)
 
             img[:] = [r, r, r]

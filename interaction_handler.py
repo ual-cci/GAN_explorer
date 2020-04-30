@@ -9,6 +9,12 @@ import glob
 import renderer
 import reconnector
 
+OSC_HANDLER = None
+SIGNAL_interactive_i = 0.0
+SIGNAL_reset_toggle = 0
+SIGNAL_latent = None
+
+
 class Interaction_Handler(object):
     """
     Do all the interaction tricks here.
@@ -87,17 +93,60 @@ class Interaction_Handler(object):
 
     # v1 - interpolate between two points, use OSC signal
     def get_interpolated_image_OSC_input(self, counter):
+
+        global OSC_HANDLER
+        if OSC_HANDLER is None:
+            OSC_address = '0.0.0.0'
+            OSC_port = 8000
+            OSC_bind = b'/send_gan_i'
+            global SIGNAL_interactive_i
+            global SIGNAL_reset_toggle
+            global SIGNAL_latent
+
+            # OSC - Interactive listener
+            def callback(*values):
+                global SIGNAL_interactive_i
+                global SIGNAL_reset_toggle
+                global SIGNAL_latent
+                print("OSC got values: {}".format(values))
+
+                percentage = values[0]
+                reset_toggle = values[1]
+                signal_latent = values[2:]
+
+                SIGNAL_interactive_i = float(percentage) / 1000.0  # 1000 = 100% = 1.0
+                SIGNAL_reset_toggle = int(reset_toggle)
+
+                #print("signal_latent len=", len(signal_latent))
+                signal_latent = np.asarray(signal_latent)
+                SIGNAL_latent = signal_latent
+
+            print("Also starting a OSC listener at ", OSC_address, OSC_port, OSC_bind,
+                  "to listen for interactive signal (0-1000).")
+            from oscpy.server import OSCThreadServer
+            osc = OSCThreadServer()
+            sock = osc.listen(address=OSC_address, port=OSC_port, default=True)
+            osc.bind(OSC_bind, callback)
+
+            OSC_HANDLER = osc # No longer none
+
+
         # ignore counter
         global SIGNAL_interactive_i
         global SIGNAL_reset_toggle
+        global SIGNAL_latent
 
         if SIGNAL_reset_toggle == 1:
             self.shuffle_random_points(self.steps)
 
         alpha = SIGNAL_interactive_i
         self.p = self.p0 + (alpha) * (self.p1 - self.p0)
-
         latents = np.asarray([self.p])
+
+        # Instead use the one we sent:
+        if SIGNAL_latent is not None:
+            latents = np.asarray([SIGNAL_latent])
+
         return self.getter.latent_to_image_localServerSwitch(latents)
 
     def start_renderer_interpolation_interact(self):
