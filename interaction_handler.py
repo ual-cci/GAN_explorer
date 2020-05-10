@@ -471,6 +471,8 @@ class Interaction_Handler(object):
 
         # Simple save in HQ (post-render)
         if save_frame_to_file:
+            # Single file save:
+            """
             message = "Saved file"
             folder = "renders/"
             if not os.path.exists(folder):
@@ -481,6 +483,14 @@ class Interaction_Handler(object):
             print("Saving in good quality as ", filename)
 
             cv2.imwrite(filename, image)
+            """
+
+            # Single plot save!
+            print("-----------------", self.saved_already)
+            self.plotter.plot(self.p, counter_override = self.saved_already)
+            self.saved_already += 1
+            print("-----------------//end",)
+
 
         return image, message
 
