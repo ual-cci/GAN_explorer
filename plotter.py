@@ -21,11 +21,15 @@ class Plotter(object):
         # Grid settings:
         # 5x10
         self.plot_row = list(np.arange(0, 2.0, 0.3)) + list(range(2,4+1))
-        self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight",
-                          "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
+        self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
+        self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+
         # 3x4
         self.plot_row = [0.0,0.5,1.0,4.0]
         self.target_tensors = ["16x16/Conv0_up/weight", "64x64/Conv0_up/weight", "256x256/Conv0_up/weight"]
+        self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+        self.plot_row = [0.0,0.4,0.8,1.0,2.0,4.0] # << Pre-trained PGGAN has these
+
 
         # these are prepared once to allow for smooth anim!
         self.tensor2fixed_order = {}
@@ -56,18 +60,18 @@ class Plotter(object):
     def plot(self, current_point, counter_override = -1):
         print("plotter called!")
         # 1 plot grid
-        """
+        #"""
         if counter_override != -1:
             self.already_plotted = counter_override
 
         self.all_rows(current_point)
         #self.one_row_effectStrength_of_reconnector(current_point)
-        """
+        #"""
 
         # 2 plot animation
-        #"""
+        """
         self.animate_effect(current_point, self.target_tensors[0])
-        #"""
+        """
 
     # Plotting grids:
 

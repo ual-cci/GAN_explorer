@@ -41,7 +41,7 @@ class Interaction_Handler(object):
         self.multiplier_value = 1.0
         self.target_tensor = 0
         self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
-        #self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+        self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
 
         # plotting:
         self.plotter = plotter.Plotter(self.renderer, getter)
@@ -486,10 +486,12 @@ class Interaction_Handler(object):
             """
 
             # Single plot save!
+            #"""
             print("-----------------", self.saved_already)
             self.plotter.plot(self.p, counter_override = self.saved_already)
             self.saved_already += 1
             print("-----------------//end",)
+            #"""
 
 
         return image, message

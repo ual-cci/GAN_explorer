@@ -17,6 +17,8 @@ args.model_path = 'models/aerials128vectors256px_-snapshot-007440.pkl'  # 50fps 
 args.model_path = 'models/aerials512vectors1024px_snapshot-010200.pkl' # 20fps ==> 15fps
 args.model_path = 'models/grayjungledwellers-008400.pkl'               # 33fps (BW) ==> 28fps
 
+
+args.model_path = 'models/karras2018iclr-celebahq-1024x1024.pkl'
 getter = Getter(args)
 initial_resolution = 1024
 
