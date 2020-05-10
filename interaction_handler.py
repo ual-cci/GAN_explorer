@@ -12,7 +12,7 @@ import reconnector
 OSC_HANDLER = None
 SIGNAL_interactive_i = 0.0
 SIGNAL_reset_toggle = 0
-SIGNAL_latent = None
+SIGNAL_latents = []
 
 
 class Interaction_Handler(object):
@@ -101,25 +101,29 @@ class Interaction_Handler(object):
             OSC_bind = b'/send_gan_i'
             global SIGNAL_interactive_i
             global SIGNAL_reset_toggle
-            global SIGNAL_latent
+            global SIGNAL_latents
 
             # OSC - Interactive listener
             def callback(*values):
                 global SIGNAL_interactive_i
                 global SIGNAL_reset_toggle
-                global SIGNAL_latent
-                print("OSC got values: {}".format(values))
+                global SIGNAL_latents
+                #print("OSC got values: {}".format(values))
 
                 percentage = values[0]
                 reset_toggle = values[1]
                 signal_latent = values[2:]
 
-                SIGNAL_interactive_i = float(percentage) / 1000.0  # 1000 = 100% = 1.0
-                SIGNAL_reset_toggle = int(reset_toggle)
+                SIGNAL_interactive_i = 0 #float(percentage) / 1000.0  # 1000 = 100% = 1.0
+                SIGNAL_reset_toggle = 1
 
                 #print("signal_latent len=", len(signal_latent))
                 signal_latent = np.asarray(signal_latent)
-                SIGNAL_latent = signal_latent
+                SIGNAL_latents.append( signal_latent )
+
+                THRESHOLD_NUMBER_of_last_latents = 30
+                if len(SIGNAL_latents) > THRESHOLD_NUMBER_of_last_latents:
+                    SIGNAL_latents = SIGNAL_latents[-THRESHOLD_NUMBER_of_last_latents:]
 
             print("Also starting a OSC listener at ", OSC_address, OSC_port, OSC_bind,
                   "to listen for interactive signal (0-1000).")
@@ -134,18 +138,19 @@ class Interaction_Handler(object):
         # ignore counter
         global SIGNAL_interactive_i
         global SIGNAL_reset_toggle
-        global SIGNAL_latent
+        global SIGNAL_latents
 
         if SIGNAL_reset_toggle == 1:
-            self.shuffle_random_points(self.steps)
+            self.p0 = self.p
+            if len(SIGNAL_latents) > 0:
+                latent = SIGNAL_latents[0]
+                SIGNAL_latents = SIGNAL_latents[1:]
+                self.p1 = np.asarray(latent)
 
-        alpha = SIGNAL_interactive_i
+        alpha = float(SIGNAL_interactive_i) / 30.0
+        SIGNAL_interactive_i += 1 # hmmmm easy interpolation test
         self.p = self.p0 + (alpha) * (self.p1 - self.p0)
         latents = np.asarray([self.p])
-
-        # Instead use the one we sent:
-        if SIGNAL_latent is not None:
-            latents = np.asarray([SIGNAL_latent])
 
         return self.getter.latent_to_image_localServerSwitch(latents)
 

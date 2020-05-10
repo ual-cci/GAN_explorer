@@ -27,6 +27,7 @@ version = "v0" # random
 version = "v0b" # random + interpolation
 version = "v2" # "game"
 
+#version = "v1" # OSC listener
 steps_speed = 120
 
 if version == "v0":
