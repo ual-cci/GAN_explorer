@@ -50,7 +50,6 @@ def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_
     # print(AS)
     # print(BS)
 
-    DO_ALL = False
     if DO_ALL:
         NUMS = list(range(res))
     else:
@@ -64,6 +63,47 @@ def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_
     set_tensor(net, tensor_name, weights)
     return net
 
+
+def dgb_get_res(net, tensor_name):
+    weights = get_tensor(net, tensor_name)
+    res = weights.shape[2]
+    return res
+
+
+# reconnection of conv filters in existing net
+def reconnect_DIRECT_ORDER(net, FIXED_ORDER, tensor_name="128x128/Conv0_up/weight", DO_ALL=True):
+    weights = get_tensor(net, tensor_name)
+
+    res = weights.shape[2]
+    print("weights.shape", weights.shape, "reconnecting in total", len(FIXED_ORDER))
+
+    select = FIXED_ORDER
+
+    odds = []
+    evens = []
+    for i in range(len(select)):
+        if i % 2 == 0:
+            evens.append(i)
+        else:
+            odds.append(i)
+
+    equalizer = min(len(odds), len(evens))
+    evens = evens[0:equalizer]
+    odds = odds[0:equalizer]
+    AS = select[odds]
+    BS = select[evens]
+
+    if DO_ALL:
+        NUMS = list(range(res))
+    else:
+        assert False # further not deterministic fucn
+
+    for first in NUMS:
+        for idx in range(len(AS)):
+            weights = swap(weights, first, AS[idx], BS[idx])
+
+    set_tensor(net, tensor_name, weights)
+    return net
 
 def get_tensor_OVERRIDE(net, target_tensor):
     np_arr = net.get_var(target_tensor)
