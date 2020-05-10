@@ -32,6 +32,7 @@ class Plotter(object):
         net = self.getter.serverside_handler._Gs # < ProgressiveGAN_Handler._Gs
         for tensor_name in self.target_tensors:
             res = reconnector.dgb_get_res(net, tensor_name)
+            print("tensor_name 2 res", tensor_name, res)
 
             go_up_to_muliples = int(self.plot_row[-1])
             # from 0 ... res
@@ -55,17 +56,18 @@ class Plotter(object):
     def plot(self, current_point, counter_override = -1):
         print("plotter called!")
         # 1 plot grid
+        """
         if counter_override != -1:
             self.already_plotted = counter_override
 
         self.all_rows(current_point)
         #self.one_row_effectStrength_of_reconnector(current_point)
-
+        """
 
         # 2 plot animation
-        """
-        self.animate_effect(current_point)
-        """
+        #"""
+        self.animate_effect(current_point, self.target_tensors[0])
+        #"""
 
     # Plotting grids:
 
@@ -179,6 +181,65 @@ class Plotter(object):
             cv2.imwrite(folder+all_name, row)
 
         return row
+
+    # Plotting animations:
+    def animate_effect(self, current_point, tensor_name = "16x16/Conv0_up/weight"):
+        print("Plotting animation for",tensor_name)
+        # init
+        net = self.getter.serverside_handler._Gs # < ProgressiveGAN_Handler._Gs
+
+        # prepare the ordering
+        res = reconnector.dgb_get_res(net, tensor_name)
+        print("got res value as", res)
+
+        OVERALL_ORDER = self.tensor2fixed_order[ tensor_name ] # these were prepared once to allow for smooth anim!
+
+        print("OVERALL_ORDER", len(OVERALL_ORDER))
+        print("debug OVERALL_ORDER", len(OVERALL_ORDER), min(OVERALL_ORDER), max(OVERALL_ORDER))
+        #print("debug OVERALL_ORDER", OVERALL_ORDER)
+
+        plot_row = list(np.arange(0.0, 2.0, 0.01)) # + list(np.arange(2.0, 0.0, 0.1))
+        print("plot_row", len(plot_row), " : ", plot_row)
+
+        images = []
+        names = []
+
+        """
+        for value_to_select in plot_row:
+            # 1.0 == res
+            end_val = int(value_to_select * res)
+            FIXED_ORDER = OVERALL_ORDER[:end_val]
+        """
+        folder = "renders/ANIMATION/"
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        saved_already = 0
+
+        # real smooth turning on!
+        for end_val in range(0, 1024, 2): #range(len(OVERALL_ORDER))
+            # 1.0 == res
+            #end_val = int(value_to_select * res)
+            FIXED_ORDER = OVERALL_ORDER[:end_val]
+            print("--selected 0 to ",end_val, "getting in total", len(FIXED_ORDER), "of numbers from which we will create pairs")
+
+            edited_net = reconnector.reconnect_DIRECT_ORDER(net, FIXED_ORDER, tensor_name)
+
+            # generate image!
+            latents = np.asarray([current_point])
+            image = self.getter.latent_to_image_localServerSwitch(latents)
+
+            #images.append(image)
+            name = "_effect-"+str(end_val)
+
+            filename = folder + "saved_" + str(saved_already).zfill(4) + name + ".png"
+            saved_already += 1
+            print("Saving in good quality as ", filename)
+            cv2.imwrite(filename, image)
+
+            # Restart the network afterwards!
+            net = reconnector.restore_net(edited_net)
+
+        print("SAVED ALL")
 
     # Helper functions
 

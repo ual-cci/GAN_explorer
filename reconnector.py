@@ -66,7 +66,7 @@ def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_
 
 def dgb_get_res(net, tensor_name):
     weights = get_tensor(net, tensor_name)
-    res = weights.shape[2]
+    res = weights.shape[3]
     return res
 
 
