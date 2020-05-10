@@ -92,8 +92,18 @@ class Renderer(object):
                 print(key)
 
             key_code = ""
-            nums = [str(i) for i in list(range(0,9))]
-            allowed_keys = ["w","s","a","d", "n", " ", "f","g","t","h","u", "l", "k", "m", "r", "e", "+", "-", "*", "=", "]", 'x', "z"] + nums
+            nums = [str(i) for i in list(range(0,10))]
+            allowed_keys = ["w","s","a","d", # movement
+                            "n", " ",
+                            "f","g","t","h","u","j", # nn hacks and restore (j)
+                            "l", "k", # save load latents
+                            "m", # reorder latents
+                            "p", # plots
+                            "r", # random jump
+                            "e",
+                            "+", "-", "*",
+                            "=", # interpolate
+                            "]", 'x', "z"] + nums
             allowed_keys_ord = [ord(k) for k in allowed_keys]
             if key in allowed_keys_ord:
                 key_code = chr(key)

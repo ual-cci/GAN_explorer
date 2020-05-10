@@ -133,6 +133,11 @@ class ProgressiveGAN_Handler(object):
 
         self._Gs = net
 
+    def restore(self):
+        net = self._Gs
+        editednet = reconnector.restore_net(net)
+        self._Gs = editednet
+
     def reconnect(self, target_tensor, percent_change = 30):
         net = self._Gs
         editednet = reconnector.reconnect(net, target_tensor, percent_change)

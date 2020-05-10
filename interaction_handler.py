@@ -8,6 +8,7 @@ import glob
 
 import renderer
 import reconnector
+import plotter
 
 OSC_HANDLER = None
 SIGNAL_interactive_i = 0.0
@@ -41,6 +42,9 @@ class Interaction_Handler(object):
         self.target_tensor = 0
         self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
         #self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+
+        # plotting:
+        self.plotter = plotter.Plotter(self.renderer, getter)
 
     # v0 - pure random
     def get_random_image(self, counter):
@@ -378,11 +382,13 @@ class Interaction_Handler(object):
             self.getter.serverside_handler.reconnect(target_tensor, percent_change)
             print("Reconnected", percent_change,"% of conv kernels in", target_tensor)
 
+        if key_code == "j":
+            print("RECONNECTOR reset")
+            self.getter.serverside_handler.restore()
+
         if key_code == "u":
             print("HAXED NET SAVER")
             self.getter.serverside_handler.savenet()
-
-
 
         # +/- change the speed of movement
         if key_code == "+" or key_code == "-":
@@ -449,10 +455,14 @@ class Interaction_Handler(object):
             while len(self.saved) < 10:
                 self.saved.append(None)
 
-
         #print("feature i=", self.selected_feature_i, ", val=", self.p0[self.selected_feature_i])
         if not self.game_is_in_interpolating_mode:
             self.p = self.p0
+
+        # Plotting:
+        if key_code == "p": # plot
+            self.plotter.plot(self.p)
+
 
         latents = np.asarray([self.p])
 

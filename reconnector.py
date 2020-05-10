@@ -20,10 +20,11 @@ def swap(weights, fixed, num1, num2):
 def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_ALL=True):
     weights = get_tensor(net, tensor_name)
 
-    print("weights.shape", weights.shape)
     res = weights.shape[2]
     possible = list(range(res))
     to_select = int((res / 100.0) * percent_change)
+
+    print("weights.shape", weights.shape, " ... selected", to_select, "from", res)
 
     select = np.random.choice(possible, to_select, replace=False)
 
@@ -49,8 +50,13 @@ def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_
     # print(AS)
     # print(BS)
 
+    DO_ALL = False
     if DO_ALL:
         NUMS = list(range(res))
+    else:
+        how_many = int(res/4)
+        NUMS = list(np.random.choice(list(range(res)), how_many))
+
     for first in NUMS:
         for idx in range(len(AS)):
             weights = swap(weights, first, AS[idx], BS[idx])
@@ -66,19 +72,39 @@ def get_tensor_OVERRIDE(net, target_tensor):
 original_weights_reconnect_specific = {}
 def get_tensor(net, target_tensor):
     global original_weights_reconnect_specific
+
+    """
     # first restore net
     for tensor_key in original_weights_reconnect_specific.keys():
+        #print("---reloading original values for", target_tensor, "from original_weights_reconnect_specific; keys:", original_weights_reconnect_specific.keys())
         orig_val = original_weights_reconnect_specific[tensor_key]
-        net.set_var(tensor_key, orig_val)
+        net.set_var(tensor_key, orig_val )
+    """
+    np_arr = net.get_var(target_tensor)
 
     if target_tensor not in original_weights_reconnect_specific:
+        #print("---saving current version of ", target_tensor," into original_weights_reconnect_specific; keys:", original_weights_reconnect_specific.keys())
         # first time getting it
-        np_arr = net.get_var(target_tensor)
-        original_weights_reconnect_specific[target_tensor] = np_arr
+        original_weights_reconnect_specific[target_tensor] = np.copy( np_arr )
+
+    """
     else:
-        np_arr = original_weights_reconnect_specific[target_tensor]
+        #print("---getting original version of the ", target_tensor)
+        I_WANT_TO_RELOAD = False
+        if I_WANT_TO_RELOAD:
+            np_arr = np.copy( original_weights_reconnect_specific[target_tensor] )
+        else:
+            np_arr = original_weights_reconnect_specific[target_tensor]
+    """
 
     return np_arr
+
+def restore_net(net):
+    for tensor_key in original_weights_reconnect_specific.keys():
+        #print("---reloading original values for", target_tensor, "from original_weights_reconnect_specific; keys:", original_weights_reconnect_specific.keys())
+        orig_val = original_weights_reconnect_specific[tensor_key]
+        net.set_var(tensor_key, orig_val )
+    return net
 
 def set_tensor(net, target_tensor, np_arr):
     net.set_var(target_tensor, np_arr)
