@@ -15,20 +15,29 @@ class Plotter(object):
 
         self.prepare_orders()
 
-
+        self.font_multiplier = 1  # 1 with 1024
+        #self.font_multiplier = 0.25  # with 256
 
     def prepare_orders(self):
         # Grid settings:
         # 5x10
         self.plot_row = list(np.arange(0, 2.0, 0.3)) + list(range(2,4+1))
         self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
-        self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+        #self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
 
         # 3x4
         self.plot_row = [0.0,0.5,1.0,4.0]
+        # 3x6
+        self.plot_row = [0.0,0.4,0.8,1.0,2.0,4.0]
         self.target_tensors = ["16x16/Conv0_up/weight", "64x64/Conv0_up/weight", "256x256/Conv0_up/weight"]
-        self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
-        self.plot_row = [0.0,0.4,0.8,1.0,2.0,4.0] # << Pre-trained PGGAN has these
+
+        ## args.model_path = 'models/karras2018iclr-celebahq-1024x1024.pkl'
+        ##self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+        ##self.plot_row = [0.0,0.4,0.8,1.0,2.0,4.0] # << Pre-trained PGGAN has these
+
+        ## args.model_path = 'models/karras2018iclr-lsun-car-256x256.pkl'
+        ##self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight"] # << Pre-trained PGGAN with 256x256 resolution
+        ##self.plot_row = [0.0,0.4,0.8,1.0,2.0]
 
 
         # these are prepared once to allow for smooth anim!
@@ -130,12 +139,12 @@ class Plotter(object):
             include_texts = True
             if include_texts:
                 font = cv2.FONT_HERSHEY_SIMPLEX
-                bottomRightCornerOfText = (1024 - 100 - 25, 1024 - 25) # usually 16x16 to 256x256
-                topLeftCornerOfText = (25, 75+5) # usually 0.0 to 4.0
-                bottomLeftCornerOfText = (10, 1000)
-                fontScale = 2
+                bottomRightCornerOfText = (int((1024 - 100 - 25) * self.font_multiplier), int((1024 - 25) * self.font_multiplier)) # usually 16x16 to 256x256
+                topLeftCornerOfText = (int(25 * self.font_multiplier), int((75+5) * self.font_multiplier)) # usually 0.0 to 4.0
+                #bottomLeftCornerOfText = (10, 1000)
+                fontScale = 2 * self.font_multiplier
                 fontColor = (255, 255, 255)
-                lineThickness = 3
+                lineThickness = max(int(3 * self.font_multiplier),1)
 
                 cv2.putText(image, str(value_to_select),
                             bottomRightCornerOfText,

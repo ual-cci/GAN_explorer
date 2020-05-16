@@ -2,7 +2,6 @@ import numpy as np
 
 # Reconnect convolution blocks inside NN:
 
-
 # helper func to swap
 def swap(weights, fixed, num1, num2):
     # w[:,:,fixed, num1] <=> w[:,:,fixed, num2]
@@ -20,11 +19,12 @@ def swap(weights, fixed, num1, num2):
 def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_ALL=True):
     weights = get_tensor(net, tensor_name)
 
-    res = weights.shape[2]
+    res_first = weights.shape[2]
+    res = weights.shape[3]
     possible = list(range(res))
     to_select = int((res / 100.0) * percent_change)
 
-    print("weights.shape", weights.shape, " ... selected", to_select, "from", res)
+    print("reconnecting", tensor_name, "weights.shape", weights.shape, " ... selected", to_select, "from", res)
 
     select = np.random.choice(possible, to_select, replace=False)
 
@@ -51,10 +51,10 @@ def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_
     # print(BS)
 
     if DO_ALL:
-        NUMS = list(range(res))
+        NUMS = list(range(res_first))
     else:
-        how_many = int(res/4)
-        NUMS = list(np.random.choice(list(range(res)), how_many))
+        how_many = int(res_first/4)
+        NUMS = list(np.random.choice(list(range(res_first)), how_many))
 
     for first in NUMS:
         for idx in range(len(AS)):
