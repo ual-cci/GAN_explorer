@@ -1,5 +1,5 @@
-# GAN_handler
-Vitek's interactive GAN handler.
+# GAN Explorer
+Vitek's interactive GAN Explorer.
 
 Idea is to have a (relatively) simple handler for a trained GAN model with easy interaction.
 
