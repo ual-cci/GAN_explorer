@@ -16,16 +16,15 @@ class Getter(object):
     Handles function to get images from handler (running either locally or on server).
     """
 
-    def __init__(self, args, USE_SERVER_INSTEAD = False):
+    def __init__(self, args, USE_SERVER_INSTEAD = False, PORT = "8000"):
 
         self.USE_SERVER_INSTEAD = USE_SERVER_INSTEAD
         self.architecture = args.architecture
 
         if self.USE_SERVER_INSTEAD:
             # = HANDSHAKE =================================================
-            PORT = "8000"
-            self.Handshake_REST_API_URL = "http://localhost:"+PORT+"/handshake"
 
+            self.Handshake_REST_API_URL = "http://localhost:"+PORT+"/handshake"
             payload = {"client": "client", "backup_name":"Bob"}
             r = requests.post(self.Handshake_REST_API_URL, files=payload).json()
             print("Handshake request data", r)
@@ -92,6 +91,15 @@ class Getter(object):
 
         return open_cv_image
 
+    def get_resolution_from_server(self):
+        # image = open(IMAGE_PATH, "rb").read()
+        payload = {}
+        res_url = self.Images_REST_API_URL.replace("get_image","get_resolution")
+        r = requests.post(res_url, json=payload)
+        # print(r.content)
+        latent_vector_size = r.json()["latent_vector_size"]
+        return latent_vector_size
+
     def latent_to_image_localServerSwitch(self, latents):
         """
         This function handles which version we are doing (on server vs. locally)
@@ -114,8 +122,7 @@ class Getter(object):
         """
         vec_size = -1
         if self.USE_SERVER_INSTEAD:
-            print("TO IMPLEMENT")
-            assert False
+            vec_size = self.get_resolution_from_server()
         else:
             vec_size = self.serverside_handler.latent_vector_size
         return vec_size

@@ -40,8 +40,10 @@ class Interaction_Handler(object):
         # network hacking
         self.multiplier_value = 1.0
         self.target_tensor = 0
-        self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
+        ##self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
         self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+
+        self.convolutional_layer_reconnection_strength = 0.3
 
         # plotting:
         self.plotter = plotter.Plotter(self.renderer, getter)
@@ -377,7 +379,7 @@ class Interaction_Handler(object):
             target_tensor = self.target_tensors[self.target_tensor]
 
             #target_tensor = "16x16/Conv0_up/weight"  # "128x128/Conv0_up/weight"
-            percent_change = 30
+            percent_change = 100.0*self.convolutional_layer_reconnection_strength #(0.3)*100=30
             #percent_change = 15
             self.getter.serverside_handler.reconnect(target_tensor, percent_change)
             print("Reconnected", percent_change,"% of conv kernels in", target_tensor)
@@ -472,7 +474,7 @@ class Interaction_Handler(object):
         # Simple save in HQ (post-render)
         if save_frame_to_file:
             # Single file save:
-            """
+            #"""
             message = "Saved file"
             folder = "renders/"
             if not os.path.exists(folder):
@@ -483,16 +485,15 @@ class Interaction_Handler(object):
             print("Saving in good quality as ", filename)
 
             cv2.imwrite(filename, image)
-            """
+            #"""
 
             # Single plot save!
-            #"""
+            """
             print("-----------------", self.saved_already)
             self.plotter.plot(self.p, counter_override = self.saved_already)
             self.saved_already += 1
             print("-----------------//end",)
-            #"""
-
+            """
 
         return image, message
 

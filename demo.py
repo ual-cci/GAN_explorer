@@ -4,47 +4,73 @@
 from getter_functions import Getter
 from interaction_handler import Interaction_Handler
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Project: GAN Explorer.')
+
+# python demo.py -h -> prints out help
+parser.add_argument('-mode', help='Mode under which we run GAN Explorer ("explore" - explore the latent space and use techniques such as Convolutional Layer Reconnection / "listen" - OSC signal listener mode, audio-visual demo (see the readme)). Defaults to "explore".', default='explore')
+parser.add_argument('-network', help='Path to the model (.pkl file) - this can be a pretrained ProgressiveGAN model, or just the Generator network (Gs).', default='models/karras2018iclr-lsun-car-256x256.pkl')
+parser.add_argument('-architecture', help='GAN architecture type (support for "ProgressiveGAN"; work-in-progress also "StyleGAN2"). Defaults to "ProgressiveGAN".', default='ProgressiveGAN')
+parser.add_argument('-steps_speed', help='Interpolation speed - steps_speed controls how many steps each transition between two samples will have (large number => smoother interpolation, slower run). Suggested 60 (mid-end) or 120 (high-end). Defaults to 60.', default='60')
+parser.add_argument('-conv_reconnect_str', help='Strength of one Convolutional Layer Reconnection effect (0.3 defaults to 30% of the connections being reconnected in each click).', default='0.3')
+
+parser.add_argument('-deploy', help='Optional mode to depend on a deployed run of the Server.py code.', default='False')
 
 
-import mock
+if __name__ == '__main__':
+    args_main = parser.parse_args()
 
-args = mock.Mock()
-args.architecture = "ProgressiveGAN"
-args.model_path = 'models/karras2018iclr-celebahq-1024x1024.pkl' # colors shifted ...
-args.model_path = 'models/karras2018iclr-lsun-airplane-256x256.pkl'
+    import mock
+    args = mock.Mock()
+    args.architecture = str(args_main.architecture)
+    args.model_path = str(args_main.network)
+    steps_speed = int(args_main.steps_speed)
 
-args.model_path = 'models/aerials128vectors256px_-snapshot-007440.pkl'  # 50fps ==> still 50fps
-args.model_path = 'models/aerials512vectors1024px_snapshot-010200.pkl' # 20fps ==> 15fps
-args.model_path = 'models/grayjungledwellers-008400.pkl'               # 33fps (BW) ==> 28fps
+    #version = "v0" # random
+    #version = "v0b" # random + interpolation
+    version = "v2"  # "game"
+    mode = str(args_main.mode)
+    if mode == "explore":
+        version = "v2" # "game"
+    elif mode == "listen":
+        version = "v1"  # OSC listener
 
+    server_deployed = (args_main.deploy == "True")
+    port = "8000" # -> Uses a link for REST requests: "http://localhost:"+PORT+"/get_image"
+    getter = Getter(args, USE_SERVER_INSTEAD=server_deployed, PORT=port)
+    initial_resolution = 1024
 
-args.model_path = 'models/karras2018iclr-celebahq-1024x1024.pkl'
-getter = Getter(args)
-initial_resolution = 1024
+    interaction_handler = Interaction_Handler(getter, initial_resolution)
+    interaction_handler.convolutional_layer_reconnection_strength = float(args_main.conv_reconnect_str)
 
-interaction_handler = Interaction_Handler(getter, initial_resolution)
-interaction_handler.latent_vector_size = getter.get_vec_size_localServerSwitch()
+    pretrained_model = ("karras2018iclr" in args.model_path)
+    if not pretrained_model:
+        # << Pre-trained PGGAN models have tensors named as: "16x16/Conv0/weight" while our custom models have "16x16/Conv0_up/weight" -> probably due to the used tf versions
+        interaction_handler.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.target_tensors]
+        interaction_handler.plotter.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.plotter.target_tensors]
+    if "-256x256.pkl" in args.model_path:
+        interaction_handler.plotter.font_multiplier = 0.25
 
-version = "v0" # random
-version = "v0b" # random + interpolation
-version = "v2" # "game"
+    # plotter allowed only in local run
+    if not server_deployed:
+        interaction_handler.plotter.prepare_with_set_tensors()
 
-#version = "v1" # OSC listener
-steps_speed = 120
+    interaction_handler.latent_vector_size = getter.get_vec_size_localServerSwitch()
 
-if version == "v0":
-    interaction_handler.start_renderer_no_interaction()
+    if version == "v0":
+        interaction_handler.start_renderer_no_interaction()
 
-elif version == "v0b":
-    interaction_handler.shuffle_random_points(steps=steps_speed)
-    interaction_handler.keep_p1 = True # << optional
-    interaction_handler.start_renderer_interpolation()
+    elif version == "v0b":
+        interaction_handler.shuffle_random_points(steps=steps_speed)
+        interaction_handler.keep_p1 = True # << optional
+        interaction_handler.start_renderer_interpolation()
 
-elif version == "v1":
+    elif version == "v1":
 
-    interaction_handler.shuffle_random_points(steps=steps_speed)
-    interaction_handler.start_renderer_interpolation_interact()
+        interaction_handler.shuffle_random_points(steps=steps_speed)
+        interaction_handler.start_renderer_interpolation_interact()
 
-elif version == "v2":
-    interaction_handler.shuffle_random_points(steps=steps_speed)
-    interaction_handler.start_renderer_key_interact()
+    elif version == "v2":
+        interaction_handler.shuffle_random_points(steps=steps_speed)
+        interaction_handler.start_renderer_key_interact()

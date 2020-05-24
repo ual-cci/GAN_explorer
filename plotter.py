@@ -22,24 +22,26 @@ class Plotter(object):
         # Grid settings:
         # 5x10
         self.plot_row = list(np.arange(0, 2.0, 0.3)) + list(range(2,4+1))
-        self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
-        #self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
+        #self.target_tensors = ["16x16/Conv0_up/weight", "32x32/Conv0_up/weight", "64x64/Conv0_up/weight", "128x128/Conv0_up/weight", "256x256/Conv0_up/weight"]
+        self.target_tensors = ["16x16/Conv0/weight", "32x32/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
 
         # 3x4
         self.plot_row = [0.0,0.5,1.0,4.0]
         # 3x6
         self.plot_row = [0.0,0.4,0.8,1.0,2.0,4.0]
-        self.target_tensors = ["16x16/Conv0_up/weight", "64x64/Conv0_up/weight", "256x256/Conv0_up/weight"]
+        self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "256x256/Conv0/weight"]
 
         ## args.model_path = 'models/karras2018iclr-celebahq-1024x1024.pkl'
         ##self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "256x256/Conv0/weight"] # << Pre-trained PGGAN has these
         ##self.plot_row = [0.0,0.4,0.8,1.0,2.0,4.0] # << Pre-trained PGGAN has these
 
         ## args.model_path = 'models/karras2018iclr-lsun-car-256x256.pkl'
-        ##self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight"] # << Pre-trained PGGAN with 256x256 resolution
-        ##self.plot_row = [0.0,0.4,0.8,1.0,2.0]
+        self.target_tensors = ["16x16/Conv0/weight", "64x64/Conv0/weight", "128x128/Conv0/weight"] # << Pre-trained PGGAN with 256x256 resolution
+        self.plot_row = [0.0,0.4,0.8,1.0,2.0]
 
 
+
+    def prepare_with_set_tensors(self):
         # these are prepared once to allow for smooth anim!
         self.tensor2fixed_order = {}
         net = self.getter.serverside_handler._Gs # < ProgressiveGAN_Handler._Gs
