@@ -94,5 +94,8 @@ Alternatively check out our [music_gen_interaction_RTML repo]( https://github.co
 
 ## Video/Demo:
 
-Convolutional Layer Reconnection preview video: https://www.youtube.com/watch?v=w24XcLon1Ns
+<p align="center">
+<a href="https://www.youtube.com/watch?v=w24XcLon1Ns" title="Convolutional Layer Reconnection preview"><img src="https://img.youtube.com/vi/w24XcLon1Ns/0.jpg" width="500"></a><br>
+<em>Convolutional Layer Reconnection preview video</em>
+</p>
 
