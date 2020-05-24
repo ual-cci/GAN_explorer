@@ -156,6 +156,8 @@ if __name__ == '__main__':
     except:
         device_id = None
 
+    print_device_info()
+
     # on my UBUNTU install:
     import platform
     if 'linux' in platform.system().lower(): # linux / windows
