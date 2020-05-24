@@ -232,8 +232,10 @@ def get_gpus_buses():
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Project: Real Time Image Generation.')
-    parser.add_argument('-network', help='model_path', default='models/aerials512vectors1024px_snapshot-010200.pkl')
+    parser = argparse.ArgumentParser(description='Project: GAN Explorer (Deployed server).')
+    parser.add_argument('-network',
+                        help='Path to the model (.pkl file) - this can be a pretrained ProgressiveGAN model, or just the Generator network (Gs).',
+                        default='models/karras2018iclr-lsun-car-256x256.pkl')
     args = parser.parse_args()
     args.model_path = args.network
     ##args.model_path = "models/aerials512vectors1024px_snapshot-010200.pkl"
