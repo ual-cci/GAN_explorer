@@ -29,7 +29,7 @@ app = flask.Flask(__name__)
 serverside_handler = None
 pool = ThreadPool()
 
-PORT = 8000
+#PORT = 8000
 
 class Server(object):
     """
@@ -51,6 +51,8 @@ class Server(object):
         # hack to distinguish server by hostnames
         hostname = socket.gethostname()  # gpu048.etcetcetc.edu
         print("server hostname is", hostname)
+
+        PORT = args.port
 
         if PRODUCTION:
             serve(app, host='127.0.0.1', port=PORT)
@@ -236,8 +238,13 @@ if __name__ == "__main__":
     parser.add_argument('-network',
                         help='Path to the model (.pkl file) - this can be a pretrained ProgressiveGAN model, or just the Generator network (Gs).',
                         default='models/karras2018iclr-lsun-car-256x256.pkl')
+    parser.add_argument('-port',
+                        help='Server runs on this port. Defaults to 8000 (this uses the link "http://localhost:"+PORT+"/get_image" for rest calls. Use SSH tunel.',
+                        default='8000')
+
     args = parser.parse_args()
     args.model_path = args.network
+    args.port = str(args.port)
     ##args.model_path = "models/aerials512vectors1024px_snapshot-010200.pkl"
 
     server = Server(args)

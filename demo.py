@@ -16,6 +16,7 @@ parser.add_argument('-steps_speed', help='Interpolation speed - steps_speed cont
 parser.add_argument('-conv_reconnect_str', help='Strength of one Convolutional Layer Reconnection effect (0.3 defaults to 30 percent of the connections being reconnected in each click).', default='0.3')
 
 parser.add_argument('-deploy', help='Optional mode to depend on a deployed run of the Server.py code (see python server.py -h for more).', default='False')
+parser.add_argument('-port', help='Server runs on this port. Defaults to 8000 (this uses the link "http://localhost:"+PORT+"/get_image" for rest calls. Use SSH tunel.', default='8000')
 
 
 if __name__ == '__main__':
@@ -37,7 +38,7 @@ if __name__ == '__main__':
         version = "v1"  # OSC listener
 
     server_deployed = (args_main.deploy == "True")
-    port = "8000" # -> Uses a link for REST requests: "http://localhost:"+PORT+"/get_image"
+    port = str(args_main.port) #port = "8000" # -> Uses a link for REST requests: "http://localhost:"+PORT+"/get_image"
     getter = Getter(args, USE_SERVER_INSTEAD=server_deployed, PORT=port)
     initial_resolution = 1024
 
