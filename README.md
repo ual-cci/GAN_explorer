@@ -2,8 +2,9 @@
 # GAN Explorer
  
 <p align="center">
-<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig2-application.jpg" width="500">
+<img src="https://drive.google.com/uc?export=view&id=1vElbKhpE18_g9FBri12I6e760PJUwQ_f" width="500">
 </p>
+<!---<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig2-application.jpg" width="500">-->
 
 **Real-time interaction** with deep generative architectures. Load and explore your Progressive GAN models. Enables Convolutional Layer Reconnection, a **novel interaction technique** which disconnects and reconnects convolutional layer connections in the model graph. Finally it’s possible to **save the edited neural network and to reuse it in other Creative AI applications**.
 
@@ -11,9 +12,13 @@ This repository contains the code for real-time interaction, reconnection and al
 
 ## Convolutional Layer Reconnection
 
-<p align="center">
+<!---<p align="center">
 <img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig1-convolutional_layer_reconnection.jpg" width="500">
+</p>-->
+<p align="center">
+<img src="https://drive.google.com/uc?export=view&id=14Z-X75HsfuEtROrTE-AOwnkSQd4RXJ4T" width="500">
 </p>
+
 
 Proposed novel mode of interaction with deep generative models by changing the connectivity in the network graph, namely in its convolutional layers (which are likely to be present in any modern generative model and as such this technique can be used universally). Targeting different depths of the generative networks enables different types of resulting effects (these are surprising and innovative yet allow for some degree of predictability). Changes in low-resolution convolutional layers (such as the _16x16_ resolution under tensor _“16x16/Conv0/weight”_) causes changes in the conceptual information of the generated image, while changes in the high-resolution convolutional layers (such as _256x256_) influence details and textures.
 
@@ -34,7 +39,8 @@ Explore the model latent space by game-like controls: `w,s,a,d`. Use `w,s` to mo
 You can trigger the Convolutional Layer Reconnection technique with your currently loaded model at your current latent vector position with `h`. This will alter the current network connectivity graph with a strength which can be controlled in the argument: `-conv_reconnect_str 0.3` (0.3 corresponds to 30% of connections being targeted in the selected depth; repeat this press for a repetition of the effect). By pressing `t`, you can cycle through the targeted convolutional layer depths (see the code output for indication of the selected depth).
 
 <p align="center">
-<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig3-plot.jpg" width="650">
+<!--<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig3-plot.jpg" width="650">-->
+<img src="https://drive.google.com/uc?export=view&id=1g3HWIURhUAfMH-39-MB1XpLiFRtY88OY" width="650">
 </p>
 
 You can use `p` to plot the current latent space position with gradually increasing strength and depth of the Convolutional Layer Reconnection effect (these grid visualizations correspond to the Figures used in our paper).
