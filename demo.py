@@ -13,9 +13,9 @@ parser.add_argument('-mode', help='Mode under which we run GAN Explorer ("explor
 parser.add_argument('-network', help='Path to the model (.pkl file) - this can be a pretrained ProgressiveGAN model, or just the Generator network (Gs).', default='models/karras2018iclr-lsun-car-256x256.pkl')
 parser.add_argument('-architecture', help='GAN architecture type (support for "ProgressiveGAN"; work-in-progress also "StyleGAN2"). Defaults to "ProgressiveGAN".', default='ProgressiveGAN')
 parser.add_argument('-steps_speed', help='Interpolation speed - steps_speed controls how many steps each transition between two samples will have (large number => smoother interpolation, slower run). Suggested 60 (mid-end) or 120 (high-end). Defaults to 60.', default='60')
-parser.add_argument('-conv_reconnect_str', help='Strength of one Convolutional Layer Reconnection effect (0.3 defaults to 30% of the connections being reconnected in each click).', default='0.3')
+parser.add_argument('-conv_reconnect_str', help='Strength of one Convolutional Layer Reconnection effect (0.3 defaults to 30 percent of the connections being reconnected in each click).', default='0.3')
 
-parser.add_argument('-deploy', help='Optional mode to depend on a deployed run of the Server.py code.', default='False')
+parser.add_argument('-deploy', help='Optional mode to depend on a deployed run of the Server.py code (see python server.py -h for more).', default='False')
 
 
 if __name__ == '__main__':
