@@ -105,3 +105,6 @@ Alternatively check out our [music_gen_interaction_RTML repo]( https://github.co
 <em>Convolutional Layer Reconnection preview video</em>
 </p>
 
+## Acknowledgements
+
+This repository is using the trained Progressive Growing GAN models from [tkarras/progressive_growing_of_gans](https://github.com/tkarras/progressive_growing_of_gans).
