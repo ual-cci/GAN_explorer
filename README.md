@@ -22,6 +22,16 @@ This repository contains the code for real-time interaction, reconnection and al
 
 Proposed novel mode of interaction with deep generative models by changing the connectivity in the network graph, namely in its convolutional layers (which are likely to be present in any modern generative model and as such this technique can be used universally). Targeting different depths of the generative networks enables different types of resulting effects (these are surprising and innovative yet allow for some degree of predictability). Changes in low-resolution convolutional layers (such as the _16x16_ resolution under tensor _“16x16/Conv0/weight”_) causes changes in the conceptual information of the generated image, while changes in the high-resolution convolutional layers (such as _256x256_) influence details and textures.
 
+## Docker demo
+
+We have a new demo using the nvidia docker at https://hub.docker.com/repository/docker/previtus/demo-gan-explorer.
+
+After installing [docker](https://docs.docker.com/get-docker/) and it's [nvidia drivers](https://github.com/NVIDIA/nvidia-docker), you should be able to easily run our code with:
+
+`sudo docker run -it --rm --user=$(id -u $USER):$(id -g $USER) --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --env="QT_X11_NO_MITSHM=1" --gpus all -ti previtus/demo-gan-explorer`
+
+This docker supports showing the default pre-trained model. Please check the readme for instructions on how to run your own trained Progressive GAN models.
+
 ## Using GAN Explorer
 
 To use GAN Explorer with your own custom Progressive GAN models, change the network path in the following demo commands (we will otherwise refer to a model released with the original Progressive GAN paper - _"karras2018iclr-lsun-car-256x256.pkl"_).
