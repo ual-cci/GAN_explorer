@@ -30,7 +30,7 @@ After installing [docker](https://docs.docker.com/get-docker/) and it's [nvidia 
 
 `sudo docker run -it --rm --user=$(id -u $USER):$(id -g $USER) --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --env="QT_X11_NO_MITSHM=1" --gpus all -ti previtus/demo-gan-explorer`
 
-This docker supports showing the default pre-trained model. Please check the readme for instructions on how to run your own trained Progressive GAN models.
+This docker supports showing the default pre-trained model. Please check the readme for instructions on how to run your own trained Progressive GAN models. Currently was tested on Linux.
 
 ## Using GAN Explorer
 
