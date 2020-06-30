@@ -149,7 +149,7 @@ class ProgressiveGAN_Handler(object):
         def save_pkl(obj, filename):
             with open(filename, 'wb') as file:
                 pickle.dump(obj, file, protocol=pickle.HIGHEST_PROTOCOL)
-        save_pkl(self._Gs, "haxed_gs.pkl")
+        save_pkl(self._Gs, "renders/haxed_gs.pkl")
 
 # Example of usage:
 """
