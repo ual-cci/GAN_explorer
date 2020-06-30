@@ -25,12 +25,13 @@ if __name__ == '__main__':
     import mock
     args = mock.Mock()
     args.architecture = str(args_main.architecture)
-    args.model_path = str(args_main.network)
 
     import os
     # if there is another model in the fixed path of networks/net.pkl, use that one instead:
     if os.path.exists("networks/net.pkl"):
         args.model_path = "networks/net.pkl"
+    else:
+        args.model_path = str(args_main.network)
 
     steps_speed = int(args_main.steps_speed)
 
