@@ -27,9 +27,10 @@ if __name__ == '__main__':
     args.architecture = str(args_main.architecture)
     args.model_path = str(args_main.network)
 
+    import os
     # if we are loading the default model ... and there is another model in the fixed path of networks/net.pkl, use that one instead
     if "karras2018iclr-lsun-car-256x256.pkl" in args.model_path:
-        if path.exists("networks/net.pkl"):
+        if os.path.exists("networks/net.pkl"):
             args.model_path = "networks/net.pkl"
 
     steps_speed = int(args_main.steps_speed)
