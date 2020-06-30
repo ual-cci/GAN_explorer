@@ -97,7 +97,7 @@ class Plotter(object):
 
 
         full_image = self.concatenate_images_v(rows)
-        folder = "renders/PLOTS_FULL/"
+        folder = "renders/ConvolutionalLayersReconnection/"
         if not os.path.exists(folder):
             os.mkdir(folder)
         cv2.imwrite(folder+str(self.already_plotted).zfill(3)+"__FULL_IMAGE"+".png", full_image)
