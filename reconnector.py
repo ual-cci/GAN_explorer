@@ -14,6 +14,24 @@ def swap(weights, fixed, num1, num2):
     weights[:, :, fixed, num1] = conv2vals
     return weights
 
+def setrand(weights, fixed, num1, num2):
+    # To have a comparable baseline (comparable in terms of the strength of the effect)
+    # w[:,:,fixed, num1] = RANDOM
+    # w[:,:,fixed, num2] = RANDOM
+    conv1vals = weights[:, :, fixed, num1]
+    #print("conv1vals.shape", conv1vals.shape)
+    conv2vals = weights[:, :, fixed, num2]
+    #print("conv2vals.shape", conv2vals.shape)
+
+    rand_a = np.random.randn(*conv1vals.shape)
+    rand_b = np.random.randn(*conv2vals.shape)
+    #print("rand_a.shape", rand_a.shape)
+    #print("rand_b.shape", rand_a.shape)
+
+    weights[:, :, fixed, num1] = rand_a
+    weights[:, :, fixed, num2] = rand_b
+    return weights
+
 
 # reconnection of conv filters in existing net
 def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_ALL=True):
@@ -63,6 +81,55 @@ def reconnect(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_
     set_tensor(net, tensor_name, weights)
     return net
 
+# reconnection of conv filters in existing net
+def reconnect_simulate_random_weights(net, tensor_name="128x128/Conv0_up/weight", percent_change=10, DO_ALL=True):
+    weights = get_tensor(net, tensor_name)
+
+    res_first = weights.shape[2]
+    res = weights.shape[3]
+    possible = list(range(res))
+    to_select = int((res / 100.0) * percent_change)
+
+    print("randomizing", tensor_name, "weights.shape", weights.shape, " ... selected", to_select, "from", res)
+
+    select = np.random.choice(possible, to_select, replace=False)
+
+    odds = []
+    evens = []
+    for i in range(len(select)):
+        if i % 2 == 0:
+            evens.append(i)
+        else:
+            odds.append(i)
+
+    #print("select",select)
+    #print("odds",odds)
+    #print("evens",evens)
+
+    equalizer = min(len(odds), len(evens))
+    evens = evens[0:equalizer]
+    odds = odds[0:equalizer]
+
+    AS = select[odds]
+    BS = select[evens]
+
+    #print("AS",AS)
+    #print("BS",BS)
+
+    if DO_ALL:
+        NUMS = list(range(res_first))
+    else:
+        how_many = int(res_first/4)
+        NUMS = list(np.random.choice(list(range(res_first)), how_many))
+
+    for first in NUMS:
+        for idx in range(len(AS)):
+            weights = setrand(weights, first, AS[idx], BS[idx])
+
+    set_tensor(net, tensor_name, weights)
+    return net
+
+
 
 def dgb_get_res(net, tensor_name):
     weights = get_tensor(net, tensor_name)
@@ -71,6 +138,7 @@ def dgb_get_res(net, tensor_name):
 
 
 # reconnection of conv filters in existing net
+# this function always does the same order (and as such makes reproducible plots for different strengths etc.)
 def reconnect_DIRECT_ORDER(net, FIXED_ORDER, tensor_name="128x128/Conv0_up/weight", DO_ALL=True):
     weights = get_tensor(net, tensor_name)
 

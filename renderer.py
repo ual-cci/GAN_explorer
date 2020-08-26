@@ -96,6 +96,7 @@ class Renderer(object):
             allowed_keys = ["w","s","a","d", # movement
                             "n", " ",
                             "f","g","t","h","u","j", # nn hacks and restore (j)
+                            "y", # nn hacks - simulation of a normal random weights replacement
                             "l", "k", # save load latents
                             "m", # reorder latents
                             "p", # plots

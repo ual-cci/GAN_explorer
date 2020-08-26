@@ -384,6 +384,18 @@ class Interaction_Handler(object):
             self.getter.serverside_handler.reconnect(target_tensor, percent_change)
             print("Reconnected", percent_change,"% of conv kernels in", target_tensor)
 
+
+        if key_code == "y":
+            print("RANDOM WEIGHTS SET")
+            target_tensor = self.target_tensors[self.target_tensor]
+
+            #target_tensor = "16x16/Conv0_up/weight"  # "128x128/Conv0_up/weight"
+            percent_change = 100.0*self.convolutional_layer_reconnection_strength #(0.3)*100=30
+            #percent_change = 15
+            self.getter.serverside_handler.reconnect_simulate_random_weights(target_tensor, percent_change)
+            print("Random weights set in", percent_change,"% of conv kernels in", target_tensor)
+
+
         if key_code == "j":
             print("RECONNECTOR reset")
             self.getter.serverside_handler.restore()

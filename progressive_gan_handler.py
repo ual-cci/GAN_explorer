@@ -143,6 +143,11 @@ class ProgressiveGAN_Handler(object):
         editednet = reconnector.reconnect(net, target_tensor, percent_change)
         self._Gs = editednet
 
+    def reconnect_simulate_random_weights(self, target_tensor, percent_change = 30):
+        net = self._Gs
+        editednet = reconnector.reconnect_simulate_random_weights(net, target_tensor, percent_change)
+        self._Gs = editednet
+
     def savenet(self):
         # usually haxed net
         net = self._Gs
