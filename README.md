@@ -2,9 +2,8 @@
 # GAN Explorer
  
 <p align="center">
-<img src="https://drive.google.com/uc?export=view&id=1i2huaHmrBbQk89T7J7X9Bt2LeY_mJZp0" width="500">
+<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig2-application.jpg" width="500">
 </p>
-<!---<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig2-application.jpg" width="500">-->
 
 **Real-time interaction** with deep generative architectures. Load and explore your Progressive GAN models. Enables Convolutional Layer Reconnection, a **novel interaction technique** which disconnects and reconnects convolutional layer connections in the model graph. Finally it’s possible to **save the edited neural network and to reuse it in other Creative AI applications**.
 
@@ -12,11 +11,8 @@ This repository contains the code for real-time interaction, reconnection and al
 
 ## Convolutional Layer Reconnection
 
-<!---<p align="center">
-<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig1-convolutional_layer_reconnection.jpg" width="500">
-</p>-->
 <p align="center">
-<img src="https://drive.google.com/uc?export=view&id=1Pb37-5qD894H5SMaEoW9rs8Tr6_kI25r" width="500">
+<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig1-convolutional_layer_reconnection.jpg" width="500">
 </p>
 
 
@@ -49,8 +45,7 @@ Explore the model latent space by game-like controls: `w,s,a,d`. Use `w,s` to mo
 You can trigger the Convolutional Layer Reconnection technique with your currently loaded model at your current latent vector position with `h`. This will alter the current network connectivity graph with a strength which can be controlled in the argument: `-conv_reconnect_str 0.3` (0.3 corresponds to 30% of connections being targeted in the selected depth; repeat this press for a repetition of the effect). By pressing `t`, you can cycle through the targeted convolutional layer depths (see the code output for indication of the selected depth).
 
 <p align="center">
-<!--<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig3-plot.jpg" width="650">-->
-<img src="https://drive.google.com/uc?export=view&id=1fJLisBSJhpDqMn2WfjaHm3_g6YTpSS3e" width="650">
+<img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig3-plot.jpg" width="650">
 </p>
 
 You can use `p` to plot the current latent space position with gradually increasing strength and depth of the Convolutional Layer Reconnection effect (these grid visualizations correspond to the Figures used in our paper).
