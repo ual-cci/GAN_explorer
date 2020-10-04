@@ -24,7 +24,7 @@ We have a new demo using the nvidia docker at https://hub.docker.com/repository/
 
 After installing [docker](https://docs.docker.com/get-docker/) and it's [nvidia drivers](https://github.com/NVIDIA/nvidia-docker), you should be able to easily run our code with:
 
-`sudo docker run -it --rm --user=$(id -u $USER):$(id -g $USER) --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --env="QT_X11_NO_MITSHM=1" --gpus all -ti previtus/demo-gan-explorer`
+`sudo docker run -it --rm --user=$(id -u $USER):$(id -g $USER) --env="DISPLAY" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --env="QT_X11_NO_MITSHM=1" -v $(pwd)/renders/:/home/GAN_explorer/renders/ --gpus all -ti previtus/demo-gan-explorer`
 
 This docker supports showing the default pre-trained model. Please check the readme for instructions on how to run your own trained Progressive GAN models. Currently was tested on Linux.
 
