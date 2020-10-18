@@ -1,6 +1,8 @@
 
 # GAN Explorer
- 
+
+Video: <a href="https://www.youtube.com/watch?v=EjSQn3lQqTI">Artist statement for Measuring Computational Creativity workshop</a>
+
 <p align="center">
 <img src="https://github.com/previtus/GAN_explorer/raw/master/illustration/fig2-application.jpg" width="500">
 </p>
