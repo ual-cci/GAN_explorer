@@ -112,7 +112,7 @@ class ProgressiveGAN_Handler(object):
         return a * np_arr
 
     def change_net(self, target_tensor, operation, *kwargs):
-        # PS: Changing the weights is faster then generating an image... (which is good news)
+        # PS: Changing the weights is faster than generating an image... (which is good news)
         np_arr = None
         net = self._Gs
 
