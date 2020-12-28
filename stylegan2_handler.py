@@ -113,6 +113,9 @@ class StyleGAN2_Handler(object):
     def toggleStylegan2Noise(self):
         self.noise_changing = not self.noise_changing
 
+    def reconnect(self, target_tensor, percent_change = 30):
+        print("!!! To be implemented for StyleGAN2 handler !!!")
+
 
 """
 # Example of usage:
