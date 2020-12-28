@@ -167,8 +167,12 @@ class StyleGAN2_Handler(object):
     def DEBUG(self):
         print("####DEBUG####")
         print(self._Gs) # < is a Network from dnnlib/tflib/network.py
-        for var in self._Gs.vars:
-            print(var)
+
+        import blender
+        net = self._Gs
+        editednet = blender.test(net)
+        self._Gs = editednet
+
         print("#############")
 
 """
