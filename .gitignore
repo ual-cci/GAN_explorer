@@ -161,4 +161,7 @@ venv.bak/
 # custom
 
 *.png
-
+dnnlib/tflib/*
+dnnlib/submission/*
+dnnlib/__init__.py
+dnnlib/util.py

@@ -1,1 +1,6 @@
 Sources for when pickle loads the models ... Temporarily just download from https://github.com/NVlabs/stylegan2/tree/master/dnnlib?version=7d3145d 
+
+wget -O stylegan2.zip https://github.com/NVlabs/stylegan2/archive/master.zip?version=7d3145d
+unzip stylegan2.zip
+mv stylegan2-master/dnnlib/* ./
+rm -rd stylegan2.zip stylegan2-master
