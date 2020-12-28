@@ -53,12 +53,18 @@ if __name__ == '__main__':
     interaction_handler.convolutional_layer_reconnection_strength = float(args_main.conv_reconnect_str)
 
     pretrained_model = ("karras2018iclr" in args.model_path)
-    if not pretrained_model:
-        # << Pre-trained PGGAN models have tensors named as: "16x16/Conv0/weight" while our custom models have "16x16/Conv0_up/weight" -> probably due to the used tf versions
-        interaction_handler.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.target_tensors]
-        interaction_handler.plotter.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.plotter.target_tensors]
-    if "-256x256.pkl" in args.model_path:
-        interaction_handler.plotter.font_multiplier = 0.25
+    if args.architecture == "ProgressiveGAN":
+        if not pretrained_model:
+            # << Pre-trained PGGAN models have tensors named as: "16x16/Conv0/weight" while our custom models have "16x16/Conv0_up/weight" -> probably due to the used tf versions
+            interaction_handler.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.target_tensors]
+            interaction_handler.plotter.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.plotter.target_tensors]
+        if "-256x256.pkl" in args.model_path:
+            interaction_handler.plotter.font_multiplier = 0.25
+    ### StyleGAN2 layer naming is different:
+    if args.architecture == "StyleGAN2":
+        interaction_handler.target_tensors = ["G_synthesis/"+tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.target_tensors]
+        interaction_handler.plotter.target_tensors = ["G_synthesis/"+tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.plotter.target_tensors]
+
 
     # plotter allowed only in local run
     if not server_deployed:

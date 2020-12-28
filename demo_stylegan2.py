@@ -1,8 +1,8 @@
 # DEMO to run
 
-
 from getter_functions import Getter
 from interaction_handler import Interaction_Handler
+
 import argparse
 
 parser = argparse.ArgumentParser(description='Project: GAN Explorer.')
@@ -16,6 +16,7 @@ parser.add_argument('-conv_reconnect_str', help='Strength of one Convolutional L
 
 parser.add_argument('-deploy', help='Optional mode to depend on a deployed run of the Server.py code (see python server.py -h for more).', default='False')
 parser.add_argument('-port', help='Server runs on this port. Defaults to 8000 (this uses the link "http://localhost:"+PORT+"/get_image" for rest calls. Use SSH tunel.', default='8000')
+
 
 if __name__ == '__main__':
     args_main = parser.parse_args()
@@ -45,15 +46,33 @@ if __name__ == '__main__':
     elif mode == "listen":
         version = "v1"  # OSC listener
 
-    getter = Getter(args)
+    server_deployed = (args_main.deploy == "True")
+    port = str(args_main.port) #port = "8000" # -> Uses a link for REST requests: "http://localhost:"+PORT+"/get_image"
+    getter = Getter(args, USE_SERVER_INSTEAD=server_deployed, PORT=port)
+    initial_resolution = 1024
 
-    interaction_handler = Interaction_Handler(getter)
-    interaction_handler.latent_vector_size = getter.get_vec_size_localServerSwitch()
+    interaction_handler = Interaction_Handler(getter, initial_resolution)
+    interaction_handler.convolutional_layer_reconnection_strength = float(args_main.conv_reconnect_str)
 
+    pretrained_model = ("karras2018iclr" in args.model_path)
+    if args.architecture == "ProgressiveGAN":
+        if not pretrained_model:
+            # << Pre-trained PGGAN models have tensors named as: "16x16/Conv0/weight" while our custom models have "16x16/Conv0_up/weight" -> probably due to the used tf versions
+            interaction_handler.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.target_tensors]
+            interaction_handler.plotter.target_tensors = [tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.plotter.target_tensors]
+        if "-256x256.pkl" in args.model_path:
+            interaction_handler.plotter.font_multiplier = 0.25
     ### StyleGAN2 layer naming is different:
     if args.architecture == "StyleGAN2":
         interaction_handler.target_tensors = ["G_synthesis/"+tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.target_tensors]
         interaction_handler.plotter.target_tensors = ["G_synthesis/"+tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.plotter.target_tensors]
+
+
+    # plotter allowed only in local run
+    if not server_deployed:
+        interaction_handler.plotter.prepare_with_set_tensors()
+
+    interaction_handler.latent_vector_size = getter.get_vec_size_localServerSwitch()
 
     if version == "v0":
         interaction_handler.start_renderer_no_interaction()
@@ -64,29 +83,6 @@ if __name__ == '__main__':
         interaction_handler.start_renderer_interpolation()
 
     elif version == "v1":
-        OSC_address = '0.0.0.0'
-        OSC_port = 8000
-        OSC_bind = b'/send_gan_i'
-
-        SIGNAL_interactive_i = 0.0
-        SIGNAL_reset_toggle = 0
-
-        # OSC - Interactive listener
-        def callback(*values):
-            global SIGNAL_interactive_i
-            global SIGNAL_reset_toggle
-            print("OSC got values: {}".format(values))
-            # [percentage, model_i, song_i]
-            percentage, reset_toggle = values
-
-            SIGNAL_interactive_i = float(percentage) / 1000.0  # 1000 = 100% = 1.0
-            SIGNAL_reset_toggle = int(reset_toggle)
-
-        print("Also starting a OSC listener at ", OSC_address, OSC_port, OSC_bind, "to listen for interactive signal (0-1000).")
-        from oscpy.server import OSCThreadServer
-        osc = OSCThreadServer()
-        sock = osc.listen(address=OSC_address, port=OSC_port, default=True)
-        osc.bind(OSC_bind, callback)
 
         interaction_handler.shuffle_random_points(steps=steps_speed)
         interaction_handler.start_renderer_interpolation_interact()

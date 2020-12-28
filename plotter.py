@@ -156,7 +156,10 @@ class Plotter(object):
                             lineThickness)
 
                 if value_to_select == 0.0:
-                    n = tensor_name.split("/")[0]
+                    if "G_synthesis/" in tensor_name:
+                        n = tensor_name.split("/")[1]
+                    else:
+                        n = tensor_name.split("/")[0]
                     cv2.putText(image, n,
                                 topLeftCornerOfText,
                                 font,
