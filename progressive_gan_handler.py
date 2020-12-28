@@ -156,6 +156,12 @@ class ProgressiveGAN_Handler(object):
                 pickle.dump(obj, file, protocol=pickle.HIGHEST_PROTOCOL)
         save_pkl(self._Gs, "renders/haxed_gs.pkl")
 
+    def DEBUG(self):
+        print("####DEBUG####")
+        print(self._Gs)
+        print("#############")
+
+
 # Example of usage:
 """
 pro_path = "aerials512vectors1024px_snapshot-010200.pkl"

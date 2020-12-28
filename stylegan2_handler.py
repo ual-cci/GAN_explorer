@@ -10,6 +10,8 @@ import dnnlib
 import dnnlib.tflib as tflib
 import pickle
 
+import reconnector
+
 def convert_images_to_uint8(images, drange=[-1,1], nchw_to_nhwc=False, shrink=1):
     # Taken from dnnlib/tflib/tfutil.py
     """Convert a minibatch of images from float32 to uint8 with configurable dynamic range.
@@ -49,6 +51,8 @@ class StyleGAN2_Handler(object):
         self._example_input = self.example_input(verbose=False)
         self._example_output = self.infer(self._example_input, verbose=False)
 
+        # Network altering:
+        self.original_weights = {}
 
 
     def _create_model(self, model_path):
@@ -94,7 +98,6 @@ class StyleGAN2_Handler(object):
         tflib.set_vars({var: rnd.randn(*var.shape.as_list()) for var in noise_vars})  # [height, width]
 
     def infer(self, input_latents, verbose=True):
-
         z = input_latents
         if self.noise_changing:
             self.set_noise()
@@ -113,9 +116,60 @@ class StyleGAN2_Handler(object):
     def toggleStylegan2Noise(self):
         self.noise_changing = not self.noise_changing
 
-    def reconnect(self, target_tensor, percent_change = 30):
-        print("!!! To be implemented for StyleGAN2 handler !!!")
+    def times_a(self, a, np_arr):
+        return a * np_arr
 
+    def change_net(self, target_tensor, operation, *kwargs):
+        # PS: Changing the weights is faster than generating an image... (which is good news)
+        np_arr = None
+        net = self._Gs
+
+        # restore old weights
+        for tensor_key in self.original_weights.keys():
+            orig_val = self.original_weights[tensor_key]
+            net.set_var(tensor_key, orig_val)
+
+        if target_tensor not in self.original_weights:
+            # we haven't change this tensor yet - load it from the NN
+            np_arr = net.get_var(target_tensor)  # <slow
+            self.original_weights[target_tensor] = np_arr
+
+        np_arr = self.original_weights[target_tensor]
+        print("tensor as np_arr:", type(np_arr), np_arr.shape)
+        np_arr = operation(np_arr, kwargs)
+        net.set_var(target_tensor, np_arr)
+
+        self._Gs = net
+
+    def restore(self):
+        net = self._Gs
+        editednet = reconnector.restore_net(net)
+        self._Gs = editednet
+
+    def reconnect(self, target_tensor, percent_change = 30):
+        net = self._Gs
+        editednet = reconnector.reconnect(net, target_tensor, percent_change)
+        self._Gs = editednet
+
+    def reconnect_simulate_random_weights(self, target_tensor, percent_change = 30):
+        net = self._Gs
+        editednet = reconnector.reconnect_simulate_random_weights(net, target_tensor, percent_change)
+        self._Gs = editednet
+
+    def savenet(self):
+        # usually haxed net
+        net = self._Gs
+        def save_pkl(obj, filename):
+            with open(filename, 'wb') as file:
+                pickle.dump(obj, file, protocol=pickle.HIGHEST_PROTOCOL)
+        save_pkl(self._Gs, "renders/haxed_gs.pkl")
+
+    def DEBUG(self):
+        print("####DEBUG####")
+        print(self._Gs) # < is a Network from dnnlib/tflib/network.py
+        for var in self._Gs.vars:
+            print(var)
+        print("#############")
 
 """
 # Example of usage:

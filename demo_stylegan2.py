@@ -50,6 +50,11 @@ if __name__ == '__main__':
     interaction_handler = Interaction_Handler(getter)
     interaction_handler.latent_vector_size = getter.get_vec_size_localServerSwitch()
 
+    ### StyleGAN2 layer naming is different:
+    if args.architecture == "StyleGAN2":
+        interaction_handler.target_tensors = ["G_synthesis/"+tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.target_tensors]
+        interaction_handler.plotter.target_tensors = ["G_synthesis/"+tensor.replace("Conv0", "Conv0_up") for tensor in interaction_handler.plotter.target_tensors]
+
     if version == "v0":
         interaction_handler.start_renderer_no_interaction()
 

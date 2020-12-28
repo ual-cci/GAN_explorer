@@ -348,6 +348,9 @@ class Interaction_Handler(object):
 
             self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by
 
+        if key_code == 'o':
+            self.getter.serverside_handler.DEBUG()
+
         # f / g Allow editing of the GAN network weights on the fly!
         # t swaps which tensor this influences
 

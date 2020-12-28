@@ -102,6 +102,7 @@ class Renderer(object):
                             "p", # plots
                             "r", # random jump
                             "e",
+                            "o", # debug key to run custom commands
                             "+", "-", "*",
                             "=", # interpolate
                             "]", 'x', "z"] + nums
