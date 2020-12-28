@@ -233,7 +233,7 @@ class Interaction_Handler(object):
             save_to_i = int(key_code)
             print("saving to ", save_to_i)
             message = "Saved to "+str(save_to_i)
-            self.saved[save_to_i] = self.p0
+            self.saved[save_to_i] = np.copy(self.p0)
         if not self.SHIFT and key_code in nums:
             # LOAD from position
             load_from_i = int(key_code)
