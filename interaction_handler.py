@@ -227,7 +227,6 @@ class Interaction_Handler(object):
             self.ALT = not self.ALT
 
         nums = [str(i) for i in list(range(0,9))]
-
         if self.SHIFT and key_code in nums:
             # SAVE on position
             save_to_i = int(key_code)
@@ -336,7 +335,6 @@ class Interaction_Handler(object):
                 direction = +1.0  # up - a
             self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by
             """
-
 
         # WS => add to/remove from selected feature
         if key_code == "w" or key_code == "s":

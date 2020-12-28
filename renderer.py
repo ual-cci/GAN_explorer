@@ -113,10 +113,12 @@ class Renderer(object):
                 if key != -1:
                     print("not allowed key detected:",key)
                     try:
-                        print("this might be",chr(key))
+                        print("this might be",chr(key),key)
                     except Exception as e:
                         print("err trying to call chr(key)", e)
 
+            if key == 190: # pressed F1 for help!
+                self.print_help()
 
             # get image
             frame = None
@@ -184,7 +186,7 @@ class Renderer(object):
         frame = self.make_a_grid(get_grid_image_function, times, times, int(resolution/times))
 
         # Layer over the text
-        texts = ["<< GAN interaction Game >>", "",
+        self.texts = ["<< GAN interaction Game >>", "",
                  "Controls:",
                  " - ws: move forwards/backwards",
                  " - ad: change direction",
@@ -217,7 +219,7 @@ class Renderer(object):
                 left = 100
                 top = 140
                 title = True
-                for text in texts:
+                for text in self.texts:
                     thickness = 2
                     if title:
                         thickness = 3
@@ -230,3 +232,6 @@ class Renderer(object):
         if not end:
             # Continue!
             self.show_frames_game(get_image_function)
+
+    def print_help(self):
+        print("\n".join(self.texts))
