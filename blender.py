@@ -8,41 +8,6 @@ second_net = None
 from dnnlib.tflib import tfutil
 
 
-"""
-#### LOAD A SECOND NET:
-import mock
-args = mock.Mock()
-args.architecture = "StyleGAN2"
-#args.model_path = "/media/vitek/4E3EC8833EC86595/Vitek/ResearchProjectsWork/DownloadsFromARC/stylegan2/00009-stylegan2-bus_35k_1024-1gpu-config-e/network-snapshot-000491.pkl"
-args.model_path = "/media/vitek/4E3EC8833EC86595/Vitek/ResearchProjectsWork/DownloadsFromARC/stylegan2/00008-stylegan2-walk_35k_1024-1gpu-config-e/network-snapshot-000491.pkl"
-
-settings = Settings()
-
-serverside_handler = None
-
-if args.architecture == "ProgressiveGAN":
-    import progressive_gan_handler
-    serverside_handler = progressive_gan_handler.ProgressiveGAN_Handler(settings, args)
-if args.architecture == "StyleGAN2":
-    import stylegan2_handler
-    serverside_handler = stylegan2_handler.StyleGAN2_Handler(settings, args)
-
-second_net = serverside_handler._Gs
-print("reporting locally loaded net:", second_net)
-
-weights = {}
-
-for tensor_key in second_net.vars:
-    try:
-        first_net_weights = second_net.get_var(tensor_key)
-        weights[ tensor_key ] = first_net_weights
-    except Exception as e:
-        print("--failed on tensor", tensor_key, "with:", e)
-
-np.save('tempweights-walk.npy',weights)
-assert False
-"""
-
 weights = np.load('tempweights.npy', allow_pickle=True).item()
 weightsfirstnet = np.load('tempweights-walk.npy', allow_pickle=True).item()
 print("reporting loaded weights:", weights.keys())
@@ -101,3 +66,51 @@ Load from net 0.156369910997455s
 Load from dictionary 1.5929981600493193e-06s
 Save to net 0.15563486399696558s
 """
+
+import argparse
+parser = argparse.ArgumentParser(description='Project: GAN Explorer - weights prep.')
+parser.add_argument('-network', help='Path to the network to export weights from.', default='network-snapshot-000491.pkl')
+
+
+if __name__ == '__main__':
+    args_main = parser.parse_args()
+
+    #### LOAD A SECOND NET:
+    import mock
+    import os
+
+    args = mock.Mock()
+    args.architecture = "StyleGAN2"
+    args.model_path = args_main.network
+    print(" ... loading from ... ", args.model_path)
+
+    settings = Settings()
+
+    serverside_handler = None
+
+    if args.architecture == "ProgressiveGAN":
+        import progressive_gan_handler
+        serverside_handler = progressive_gan_handler.ProgressiveGAN_Handler(settings, args)
+    if args.architecture == "StyleGAN2":
+        import stylegan2_handler
+        serverside_handler = stylegan2_handler.StyleGAN2_Handler(settings, args)
+
+    loaded_net = serverside_handler._Gs
+    print("reporting locally loaded net:", loaded_net)
+
+    weights = {}
+
+    for tensor_key in loaded_net.vars:
+        try:
+            first_net_weights = loaded_net.get_var(tensor_key)
+            weights[ tensor_key ] = first_net_weights
+        except Exception as e:
+            print("--failed on tensor", tensor_key, "with:", e)
+
+    base = os.path.basename(args.model_path)
+    save_name = os.path.dirname(args.model_path) + "/" + os.path.splitext(base)[0] + ".npy"
+    print("... saving to ... ", save_name)
+    np.save(save_name, weights)
+
+
+#python blender.py -network /media/vitek/4E3EC8833EC86595/Vitek/ResearchProjectsWork/DownloadsFromARC/stylegan2/walk-network-snapshot-001309.pkl
