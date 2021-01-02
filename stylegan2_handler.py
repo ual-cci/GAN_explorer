@@ -175,6 +175,12 @@ class StyleGAN2_Handler(object):
 
         print("#############")
 
+    def alphablendmodels_slow(self, alpha):
+        import blender
+        net = self._Gs
+        editednet = blender.slow_blend_from_saved_weights(net,alpha)
+        self._Gs = editednet
+
 """
 # Example of usage:
 

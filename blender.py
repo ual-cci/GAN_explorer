@@ -48,7 +48,7 @@ weightsfirstnet = np.load('tempweights-walk.npy', allow_pickle=True).item()
 print("reporting loaded weights:", weights.keys())
 
 
-def test(net, alpha=0.9):
+def slow_blend_from_saved_weights(net, alpha=0.9):
     print("first net.vars", net.vars)
     #print("second net.vars", second_net.vars)
 

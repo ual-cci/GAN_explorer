@@ -10,6 +10,8 @@ import renderer
 import reconnector
 import plotter
 
+from tqdm import tqdm
+
 OSC_HANDLER = None
 SIGNAL_interactive_i = 0.0
 SIGNAL_reset_toggle = 0
@@ -349,7 +351,25 @@ class Interaction_Handler(object):
             self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by
 
         if key_code == 'o':
-            self.getter.serverside_handler.DEBUG()
+            steps = 100
+            # animation wise maybe going from 0 to 30% and then from 70% to 100% looks the best?
+            #
+            full_list = range(steps+1)
+            range_list = np.concatenate([full_list[:int(30.0*steps/100.0)], np.arange(int(30.0*steps/100.0),int(70.0*steps/100.0),5), full_list[int(70.0*steps/100.0):]])
+            for i_steps in tqdm(range_list):  ## range(steps+1)
+                alpha = float(i_steps) / float(steps)
+                if alpha > 0.0 and alpha < 1.0: # ignore edge points
+                    self.getter.serverside_handler.alphablendmodels_slow(alpha)
+                latents = np.asarray([self.p0])
+                image = self.getter.latent_to_image_localServerSwitch(latents)
+
+                folder = "renders-debug/"
+                if not os.path.exists(folder): os.mkdir(folder)
+
+                filename = folder+"saved_" + str(i_steps).zfill(4) + ".png"
+                print("Saving in good quality as ", filename)
+                cv2.imwrite(filename, image)
+
 
         # f / g Allow editing of the GAN network weights on the fly!
         # t swaps which tensor this influences
