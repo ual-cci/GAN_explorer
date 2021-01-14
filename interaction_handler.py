@@ -446,7 +446,8 @@ class Interaction_Handler(object):
             path = "latents/"
             if not os.path.exists(path):
                 os.mkdir(path)
-            path = "latents/save/"
+            model_name = self.getter.model_name_id
+            path = "latents/"+model_name+"/"
             if not os.path.exists(path):
                 os.mkdir(path)
 
@@ -477,7 +478,8 @@ class Interaction_Handler(object):
             path = "latents/"
             if not os.path.exists(path):
                 os.mkdir(path)
-            path = "latents/load/"
+            model_name = self.getter.model_name_id
+            path = "latents/"+model_name+"/"
             if not os.path.exists(path):
                 os.mkdir(path)
 
@@ -510,6 +512,10 @@ class Interaction_Handler(object):
             #"""
             message = "Saved file"
             folder = "renders/"
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+            name = self.getter.model_name_id
+            folder = "renders/" + name + "/"
             if not os.path.exists(folder):
                 os.mkdir(folder)
 

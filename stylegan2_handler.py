@@ -9,7 +9,7 @@ import PIL.Image
 import dnnlib
 import dnnlib.tflib as tflib
 import pickle
-
+import os
 import reconnector
 
 def convert_images_to_uint8(images, drange=[-1,1], nchw_to_nhwc=False, shrink=1):
@@ -36,6 +36,12 @@ class StyleGAN2_Handler(object):
         # Initialization, should create the model, load it and also run one inference (to build the graph)
         self.settings = settings
         print("Init handler with path =", args.model_path)
+
+        _, name = os.path.split(args.model_path)
+        name = str(name).replace(".pkl", "")
+        name = str(name).replace(".pt", "")
+        self.model_name_id = name
+
         self.truncation_psi = truncation_psi
 
         # Load and create a model

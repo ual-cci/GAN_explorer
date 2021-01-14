@@ -37,6 +37,7 @@ class Getter(object):
 
         settings = Settings()
         self.serverside_handler = None
+        self.model_name_id = "model_id"
 
         if not self.USE_SERVER_INSTEAD:
             if self.architecture == "ProgressiveGAN":
@@ -44,6 +45,8 @@ class Getter(object):
             if self.architecture == "StyleGAN2":
                 import stylegan2_handler
                 self.serverside_handler = stylegan2_handler.StyleGAN2_Handler(settings, args)
+
+            self.model_name_id = self.serverside_handler.model_name_id
 
     def toggleStylegan2Noise(self):
         if self.architecture == "StyleGAN2":

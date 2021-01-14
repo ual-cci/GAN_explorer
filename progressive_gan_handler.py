@@ -4,6 +4,7 @@ import tensorflow as tf
 from timeit import default_timer as timer
 import PIL.Image
 import reconnector
+import os
 
 class ProgressiveGAN_Handler(object):
     """
@@ -14,6 +15,11 @@ class ProgressiveGAN_Handler(object):
         # Initialization, should create the model, load it and also run one inference (to build the graph)
         self.settings = settings
         print("Init handler with path =", args.model_path)
+
+        _, name = os.path.split(args.model_path)
+        name = str(name).replace(".pkl", "")
+        name = str(name).replace(".pt", "")
+        self.model_name_id = name
 
         # Load and create a model
         self._create_model(args.model_path)
