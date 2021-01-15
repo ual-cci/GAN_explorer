@@ -151,6 +151,60 @@ class Renderer(object):
 
             cv2.imshow('Interactive Machine Learning - GAN', frame)
 
+    def return_frame_client_mode(self, get_image_function, key_code):
+        # This function is made with WASD and SPACE control scheme in mind
+        fps = FPS()
+        self.counter = 0
+        message = ""
+
+
+        nums = [str(i) for i in list(range(0,10))]
+        allowed_keys = ["w","s","a","d", # movement
+                            "n", " ",
+                            "f","g","t","h","u","j", # nn hacks and restore (j)
+                            "y", # nn hacks - simulation of a normal random weights replacement
+                            "l", "k", # save load latents
+                            "m", # reorder latents
+                            "p", # plots
+                            "r", # random jump
+                            "e",
+                            "o", # debug key to run custom commands
+                            "+", "-", "*",
+                            "=", # interpolate
+                            "]", 'x', "z"] + nums
+        if key_code not in allowed_keys:
+                print("not allowed key detected:",key_code)
+
+        # get image
+        frame = None
+
+        time_start = timer()
+        frame, new_message = get_image_function(self.counter, key_code, ord(key_code))
+        if len(new_message) > 0:
+            message = new_message
+
+        time_end = timer()
+        #print("timer:", (time_end-time_start))
+        #fps_val = 1.0 / (time_end-time_start)
+        fps_val = fps()
+        # includes time for the open cv to render and the text
+        # so without showing it (imshow), it would be 24-26fps, with it it's cca 20-21fps
+        #print(fps_val)
+
+        if self.show_fps:
+            if len(message) > 0:
+                text = message
+                textsize = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)[0]
+                textX = int((frame.shape[1] - textsize[0]) / 2)
+                textY = int((frame.shape[0] + textsize[1]) / 2)
+
+                frame = cv2.putText(frame, text, (self.initial_resolution - textsize[0] - 10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                #frame = cv2.putText(frame, text, (textX, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+            frame = cv2.putText(frame, "FPS " + '{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+        return frame
+
     def make_a_grid(self, get_image_function, x_times = 4, y_times = 4, resolution_of_one = 256):
 
         z = 3

@@ -7,14 +7,18 @@ second_net = None
 
 from dnnlib.tflib import tfutil
 
+def load_nets(first_net_path = 'tempweights-walk.npy', second_net_weights='tempweights.npy'):
+    global weights, weightsfirstnet
+    weights = np.load(second_net_weights, allow_pickle=True).item()
+    weightsfirstnet = np.load(first_net_path, allow_pickle=True).item()
 
-weights = np.load('tempweights.npy', allow_pickle=True).item()
-weightsfirstnet = np.load('tempweights-walk.npy', allow_pickle=True).item()
-print("reporting loaded weights:", weights.keys())
+load_nets('tempweights-walk.npy', 'tempweights.npy')
+#weights = np.load('tempweights.npy', allow_pickle=True).item()
+#weightsfirstnet = np.load('tempweights-walk.npy', allow_pickle=True).item()
+#print("reporting loaded weights:", weights.keys())
 
-
-def slow_blend_from_saved_weights(net, alpha=0.9):
-    print("first net.vars", net.vars)
+def slow_blend_from_saved_weights(net, alpha=0.9, verbose=False):
+    if verbose: print("first net.vars", net.vars)
     #print("second net.vars", second_net.vars)
 
     for tensor_key in net.vars:
@@ -26,7 +30,7 @@ def slow_blend_from_saved_weights(net, alpha=0.9):
             # so far it seems like for StyleGan2 we ...
             # - need ToRGB, need both the ones without _up and with _up
             try:
-                print(tensor_key)
+                if verbose: print(tensor_key)
 
                 first_net_weights = weightsfirstnet[tensor_key] # net.get_var(tensor_key)
                 second_net_weights = weights[tensor_key] # second_net.get_var(tensor_key)
@@ -70,6 +74,7 @@ Save to net 0.15563486399696558s
 import argparse
 parser = argparse.ArgumentParser(description='Project: GAN Explorer - weights prep.')
 parser.add_argument('-network', help='Path to the network to export weights from.', default='network-snapshot-000491.pkl')
+parser.add_argument('-architecture', help='"ProgressiveGAN" or "StyleGAN2".', default="StyleGAN2")
 
 
 if __name__ == '__main__':
@@ -80,7 +85,7 @@ if __name__ == '__main__':
     import os
 
     args = mock.Mock()
-    args.architecture = "StyleGAN2"
+    args.architecture = args_main.architecture
     args.model_path = args_main.network
     print(" ... loading from ... ", args.model_path)
 

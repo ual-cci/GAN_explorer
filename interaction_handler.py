@@ -350,7 +350,7 @@ class Interaction_Handler(object):
 
             self.p0[self.selected_feature_i] = self.p0[self.selected_feature_i] + direction * self.move_by
 
-        if key_code == 'o':
+        if key_code == "o":
             steps = 100
             # animation wise maybe going from 0 to 30% and then from 70% to 100% looks the best?
             #
