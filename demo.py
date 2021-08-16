@@ -33,6 +33,11 @@ if __name__ == '__main__':
     else:
         args.model_path = str(args_main.network)
 
+    #####################
+    # Local override
+    #args.model_path = "models/grayjungledwellers-008800.pkl"
+
+
     steps_speed = int(args_main.steps_speed)
 
     #version = "v0" # random

@@ -32,8 +32,20 @@ if __name__ == '__main__':
     else:
         args.model_path = str(args_main.network)
 
+    #####################
+    # Local override
     args.architecture = "StyleGAN2"
-    args.model_path = "/media/vitek/4E3EC8833EC86595/Vitek/ResearchProjectsWork/DownloadsFromARC/stylegan2/00009-stylegan2-bus_35k_1024-1gpu-config-e/network-snapshot-000491.pkl"
+    #aerials 114k / 35k
+    #args.model_path = "models/sg_aerials114k_network-snapshot-000982.pkl"
+    #args.model_path = "models/sg_aerials35k_network-snapshot-000982.pkl"
+    #bus
+    #args.model_path = "models/sg_bus35k_network-snapshot-000982.pkl"
+    #boat
+    #args.model_path = "models/sg_boat35k_network-snapshot-000982.pkl"
+    #walk
+    #args.model_path = "models/sg_walk35k_network-snapshot-001309.pkl"
+
+
 
     steps_speed = int(args_main.steps_speed)
 
