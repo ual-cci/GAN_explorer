@@ -23,7 +23,7 @@ class Interaction_Handler(object):
     Do all the interaction tricks here.
     """
 
-    def __init__(self, getter, initial_resolution=1024, fullscreen='None'):
+    def __init__(self, getter, initial_resolution=1024, fullscreen='None', start_in_autonomous_mode = False):
         self.renderer = renderer.Renderer(initial_resolution=initial_resolution, fullscreen=fullscreen)
         self.renderer.show_fps = False # by default hide fps
         self.getter = getter
@@ -32,6 +32,7 @@ class Interaction_Handler(object):
         self.saved_second_index_selected = -1
         self.counter_start = 0
         self.autonomous_mode = False
+        self.start_in_autonomous_mode = start_in_autonomous_mode
 
         self.latent_vector_size = 512
         self.saved_already = 0
@@ -245,9 +246,10 @@ class Interaction_Handler(object):
                 self.p0 = self.saved[load_from_i]
 
         # Automatic mode:
-        if key_code == "`":
+        if key_code == "`" or self.start_in_autonomous_mode:
             print("Automatic mode toggle")
             self.autonomous_mode = not self.autonomous_mode
+            self.start_in_autonomous_mode = False
 
             if self.autonomous_mode:
                 self.saved = [] # flush previous latents
@@ -262,6 +264,9 @@ class Interaction_Handler(object):
                 self.game_is_in_interpolating_mode = True # loop between them ...
             else:
                 self.saved = [] # flush previous latents
+                while len(self.saved) < 10:
+                    self.saved.append(None)
+
                 self.saved_first_index_selected = -1
                 self.saved_second_index_selected = -1 # restart from the first one again
 
@@ -568,7 +573,7 @@ class Interaction_Handler(object):
         return image, message
 
 
-    def start_renderer_key_interact(self):
+    def start_renderer_key_interact(self, skip_intro = False):
         self.selected_feature_i = int(self.latent_vector_size / 2.0)
         # self.selected_feature_i = 10 # hmm is there an ordering?
         self.previous = self.p0
@@ -578,8 +583,10 @@ class Interaction_Handler(object):
 
         self.saved = [None] * 10
 
-        #\self.renderer.show_frames_game(self.get_interpolated_image_key_input)
-        self.renderer.show_intro(self.get_interpolated_image_key_input, self.get_random_image)
+        if skip_intro:
+            self.renderer.show_frames_game(self.get_interpolated_image_key_input)
+        else:
+            self.renderer.show_intro(self.get_interpolated_image_key_input, self.get_random_image)
 
     def randomize_saved_order(self):
         # Randomize the order of current latents (ones in self.saved) (they can be loaded by "l" and re-saved again by "k")

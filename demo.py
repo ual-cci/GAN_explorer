@@ -19,6 +19,7 @@ parser.add_argument('-deploy', help='Optional mode to depend on a deployed run o
 parser.add_argument('-port', help='Server runs on this port. Defaults to 8000 (this uses the link "http://localhost:"+PORT+"/get_image" for rest calls. Use SSH tunel.', default='8000')
 
 parser.add_argument('-fullscreen', help='Start Fullscreen? ("full" - fullscreen, "resize" - resizeable window, otherwise fixed resolution 1024)', default='None')
+parser.add_argument('-skip_intro', help='Directly into game?.', default='False')
 
 
 if __name__ == '__main__':
@@ -56,9 +57,9 @@ if __name__ == '__main__':
     getter = Getter(args, USE_SERVER_INSTEAD=server_deployed, PORT=port)
     initial_resolution = 1024
     fullscreen = str(args_main.fullscreen)
+    skip_intro = (args_main.skip_intro == "True")
 
-
-    interaction_handler = Interaction_Handler(getter, initial_resolution, fullscreen)
+    interaction_handler = Interaction_Handler(getter, initial_resolution, fullscreen, start_in_autonomous_mode=skip_intro)
     interaction_handler.convolutional_layer_reconnection_strength = float(args_main.conv_reconnect_str)
 
     pretrained_model = ("karras2018iclr" in args.model_path)
@@ -96,4 +97,4 @@ if __name__ == '__main__':
 
     elif version == "v2":
         interaction_handler.shuffle_random_points(steps=steps_speed)
-        interaction_handler.start_renderer_key_interact()
+        interaction_handler.start_renderer_key_interact(skip_intro=skip_intro)
