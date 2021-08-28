@@ -18,6 +18,8 @@ parser.add_argument('-conv_reconnect_str', help='Strength of one Convolutional L
 parser.add_argument('-deploy', help='Optional mode to depend on a deployed run of the Server.py code (see python server.py -h for more).', default='False')
 parser.add_argument('-port', help='Server runs on this port. Defaults to 8000 (this uses the link "http://localhost:"+PORT+"/get_image" for rest calls. Use SSH tunel.', default='8000')
 
+parser.add_argument('-fullscreen', help='Start Fullscreen? ("full" - fullscreen, "resize" - resizeable window, otherwise fixed resolution 1024)', default='None')
+
 
 if __name__ == '__main__':
     args_main = parser.parse_args()
@@ -53,8 +55,10 @@ if __name__ == '__main__':
     port = str(args_main.port) #port = "8000" # -> Uses a link for REST requests: "http://localhost:"+PORT+"/get_image"
     getter = Getter(args, USE_SERVER_INSTEAD=server_deployed, PORT=port)
     initial_resolution = 1024
+    fullscreen = str(args_main.fullscreen)
 
-    interaction_handler = Interaction_Handler(getter, initial_resolution)
+
+    interaction_handler = Interaction_Handler(getter, initial_resolution, fullscreen)
     interaction_handler.convolutional_layer_reconnection_strength = float(args_main.conv_reconnect_str)
 
     pretrained_model = ("karras2018iclr" in args.model_path)

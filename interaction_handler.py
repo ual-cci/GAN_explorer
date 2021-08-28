@@ -23,9 +23,9 @@ class Interaction_Handler(object):
     Do all the interaction tricks here.
     """
 
-    def __init__(self, getter, initial_resolution=1024):
-        self.renderer = renderer.Renderer(initial_resolution=initial_resolution)
-        self.renderer.show_fps = True
+    def __init__(self, getter, initial_resolution=1024, fullscreen='None'):
+        self.renderer = renderer.Renderer(initial_resolution=initial_resolution, fullscreen=fullscreen)
+        self.renderer.show_fps = False # by default hide fps
         self.getter = getter
         self.game_is_in_interpolating_mode = False
         self.saved_first_index_selected = -1

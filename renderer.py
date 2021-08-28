@@ -8,6 +8,7 @@ import time
 import collections
 import skimage.transform
 
+FRAME_NAME = 'Interactive Machine Learning - GAN'
 
 class FPS:
     def __init__(self,avarageof=50):
@@ -24,15 +25,53 @@ class Renderer(object):
     Draw image to screen.
     """
 
-    def __init__(self, show_fps = True, initial_resolution = 1024):
+    def __init__(self, show_fps = True, initial_resolution = 1024, fullscreen='None'):
         self.show_fps = show_fps
         self.counter = 0
         self.initial_resolution = initial_resolution
+        self.fullscreen = fullscreen
+        self.screen_width, self.screen_height = None, None
 
-        #cv2.namedWindow("frame", cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
-        #cv2.resizeWindow('frame', initial_resolution, initial_resolution)
+        self.window_created = False
 
         return None
+
+    def create_window(self):
+        # Create named window, set all the needed cv2 flags
+        if self.fullscreen=='resize':
+            cv2.namedWindow(FRAME_NAME, cv2.WINDOW_NORMAL)  # Create window with freedom of dimensions
+            cv2.resizeWindow(FRAME_NAME, initial_resolution, initial_resolution)
+
+        if self.fullscreen=='full':
+            cv2.namedWindow(FRAME_NAME, cv2.WND_PROP_FULLSCREEN)
+            cv2.setWindowProperty(FRAME_NAME, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+            # we need to know the screen dimensions for this ...
+            self.screen_width, self.screen_height = 1920, 1080
+
+
+    def trigger_render(self, frame):
+        # Render function - either just diplays the image, or also adds borders
+        if not self.window_created:
+            self.create_window()
+            self.window_created = True
+
+        if self.fullscreen=='full':
+            # we need to add black borders:
+
+            # border: https://stackoverflow.com/questions/36255654/how-to-add-border-around-an-image-in-opencv-python
+            # display number: https://stackoverflow.com/a/53005272 ~ perhaps cv2.moveWindow(window_name, *first_display_size)
+            frame_w, frame_h, _ = frame.shape # 1020, 1020, 3
+
+            black = [0,0,0]
+            top_bottom = int( (self.screen_height - frame_h) / 2 )
+            left_right = int( (self.screen_width - frame_w) / 2 )
+            frame = cv2.copyMakeBorder(frame,top_bottom,top_bottom,left_right,left_right,cv2.BORDER_CONSTANT,value=black)
+
+            cv2.imshow(FRAME_NAME, frame)
+        else:
+            # normally call imshow
+            cv2.imshow(FRAME_NAME, frame)
 
     def show_frames(self, get_image_function):
         fps = FPS()
@@ -70,8 +109,7 @@ class Renderer(object):
             if self.show_fps:
                 frame = cv2.putText(frame, "FPS "+'{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            cv2.imshow('Interactive Machine Learning - GAN', frame)
-
+            self.trigger_render(frame)
 
     def show_frames_game(self, get_image_function):
         # This function is made with WASD and SPACE control scheme in mind
@@ -150,7 +188,7 @@ class Renderer(object):
 
                 frame = cv2.putText(frame, "FPS " + '{:.2f}'.format(fps_val), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            cv2.imshow('Interactive Machine Learning - GAN', frame)
+            self.trigger_render(frame)
 
     def return_frame_client_mode(self, get_image_function, key_code):
         # This function is made with WASD and SPACE control scheme in mind
@@ -271,7 +309,7 @@ class Renderer(object):
             #times = 3
             #frame_dynamic = self.make_a_grid(get_grid_image_function, times, times, int(resolution / times))
 
-            if self.show_fps:
+            if True: # always show the initial message
                 left = 100
                 top = 140
                 title = True
@@ -283,7 +321,7 @@ class Renderer(object):
                     title = False
                     top += 40
 
-            cv2.imshow('Interactive Machine Learning - GAN', frame_dynamic)
+            self.trigger_render(frame_dynamic)
 
         if not end:
             # Continue!
