@@ -105,6 +105,7 @@ class Renderer(object):
                             "o", # debug key to run custom commands
                             "+", "-", "*",
                             "=", # interpolate
+                            "`", # autonomous mode
                             "]", 'x', "z"] + nums
             allowed_keys_ord = [ord(k) for k in allowed_keys]
             if key in allowed_keys_ord:

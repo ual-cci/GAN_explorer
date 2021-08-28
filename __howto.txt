@@ -1,0 +1,11 @@
+# Runner codes:
+[[[ GAN EXPLORER ]]]
+
+source /home/vitek/cuda-10.0-env
+source activate /home/vitek/anaconda3/envs/tfenv
+
+python demo.py -network models/sg_walk35k_network-snapshot-001841-good.pkl -architecture "StyleGAN2"
+
+python demo.py -network models/aerials512vectors1024px_snapshot-010200.pkl
+
+

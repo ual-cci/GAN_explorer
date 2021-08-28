@@ -31,6 +31,7 @@ class Interaction_Handler(object):
         self.saved_first_index_selected = -1
         self.saved_second_index_selected = -1
         self.counter_start = 0
+        self.autonomous_mode = False
 
         self.latent_vector_size = 512
         self.saved_already = 0
@@ -243,20 +244,50 @@ class Interaction_Handler(object):
             if self.saved[load_from_i] is not None:
                 self.p0 = self.saved[load_from_i]
 
+        # Automatic mode:
+        if key_code == "`":
+            print("Automatic mode toggle")
+            self.autonomous_mode = not self.autonomous_mode
+
+            if self.autonomous_mode:
+                self.saved = [] # flush previous latents
+                how_many = 100
+                latents = np.random.randn(how_many, self.latent_vector_size)
+                self.saved = latents
+
+                self.counter_start = counter  # so that we always start with 0
+                self.saved_first_index_selected = -1
+                self.saved_second_index_selected = -1 # restart from the first one again
+
+                self.game_is_in_interpolating_mode = True # loop between them ...
+            else:
+                self.saved = [] # flush previous latents
+                self.saved_first_index_selected = -1
+                self.saved_second_index_selected = -1 # restart from the first one again
+
+                self.p0 = self.p # to start where we now ended at
+
+                self.game_is_in_interpolating_mode = False # stop looping
+                
+
         # Render between all saved you have!
         # start with position self.saved[0] and go till self.saved[9]
         # use self.steps
         # save everything we navigate through to /render_interpolation folder
         if key_code == "=":
-            # Start interpolation
-            self.game_is_in_interpolating_mode = not self.game_is_in_interpolating_mode
+            if self.autonomous_mode:
+                pass # if we are autonomous, ignore this ...
 
-            if self.game_is_in_interpolating_mode:
-                self.counter_start = counter  # so that we always start with 0
-                self.saved_first_index_selected = -1
-                self.saved_second_index_selected = -1 # restart from the first one again
             else:
-                self.p0 = self.p # to start where we now ended at
+                # Start interpolation
+                self.game_is_in_interpolating_mode = not self.game_is_in_interpolating_mode
+
+                if self.game_is_in_interpolating_mode:
+                    self.counter_start = counter  # so that we always start with 0
+                    self.saved_first_index_selected = -1
+                    self.saved_second_index_selected = -1 # restart from the first one again
+                else:
+                    self.p0 = self.p # to start where we now ended at
 
         if key_code == "]":
             self.toggle_save_frames_in_loop = not self.toggle_save_frames_in_loop

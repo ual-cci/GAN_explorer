@@ -165,3 +165,5 @@ dnnlib/tflib/*
 dnnlib/submission/*
 dnnlib/__init__.py
 dnnlib/util.py
+
+*.txt # saved latents
