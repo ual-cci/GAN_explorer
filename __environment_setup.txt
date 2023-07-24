@@ -1,0 +1,68 @@
+# Alternative running via Docker
+- install docker
+- and nvidia-docker (instructions from https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html seem to work)
+- then download and run my image ...
+
+
+# Install step 1: CUDA
+(stick to the well known combo!)
+(we used combination: cuda_10.0.130_410.48 + libcudnn7_7.4.2.24-1+cuda10.0_amd64.deb + tensorflow-gpu==1.14.0)
+
+# Install step 2: Libraries
+
+sudo apt-get install python3-opencv
+sudo apt-get install libasound2-plugins
+
+conda create -c conda-forge -n gan_explorer python=3.6 mamba
+source activate gan_explorer
+
+mamba install -c conda-forge requests==2.24.0 matplotlib==3.3.2 Pillow==8.0.1 mock==4.0.2 scikit-image==0.17.2
+
+pip install opencv-python==4.4.0.46 oscpy==0.5.0
+pip install tensorflow-gpu==1.14.0
+
+(skipping) pip install pygame
+
+(last step - download the dnnlib from stylegan2 repo)
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+# Runner codes:
+[[[ GAN EXPLORER ]]]
+##source /home/vitek/cuda-10.0-env
+source activate gan_explorer
+python demo.py -network models/sg_walk35k_network-snapshot-001841-good.pkl -architecture "StyleGAN2"
+python demo.py -network models/AERIALS/pg_aerials512vectors1024px_snapshot-010200.pkl
+
+
+
+
+# NICE DEMOS:
+AERIALS
+python demo.py -fullscreen full -network models/AERIALS/pg_aerials512vectors1024px_snapshot-010200.pkl
+
+
+
+BUS
+(15fps) python demo.py -fullscreen full -network models/BUS/pg_bus-snapshot-010300.pkl
+python demo.py -fullscreen full -network models/BUS/sg_bus35k_network-snapshot-001882-good.pkl -architecture "StyleGAN2"
+
+BOAT
+[*](15fps) python demo.py -fullscreen full -network models/BOAT/pg_boat-snapshot-010300.pkl
+(too fast~) python demo.py -fullscreen full -network models/BOAT/sg_boat35k_network-snapshot-001964-good.pkl -architecture "StyleGAN2"
+
+
+CCTV DPP:
+python demo.py -fullscreen full -network models/CCTV/pg_cctv_prague_dpp1-011000.pkl
+[*]CCTV RUZYNE:
+python demo.py -fullscreen full -network models/CCTV/pg_cctv_prague_Ruzyne_512_30k-009600.pkl
+CCTV Vaclavak
+python demo.py -fullscreen full -network models/CCTV/pg_cctv_prague_vaclavak_1024_30k-010300.pkl
+
+
+
+(
+TRAIN
+python demo.py -fullscreen full -network models/TRAIN/___sg_train_side_network-snapshot-000982.pkl -architecture "StyleGAN2"
+
+)

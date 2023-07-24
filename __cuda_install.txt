@@ -1,0 +1,207 @@
+
+# allow older gcc on ubuntu 22.04
+
+From https://askubuntu.com/questions/1406962/install-gcc7-on-ubuntu-22-04
+Add to your sources.list
+deb [arch=amd64] http://archive.ubuntu.com/ubuntu focal main universe
+sudo apt update
+sudo apt install g++-7 gcc-7
+
+sudo rm /usr/bin/g++
+sudo rm /usr/bin/gcc
+sudo ln -s /usr/bin/g++-7 /usr/bin/g++
+sudo ln -s /usr/bin/gcc-7 /usr/bin/gcc
+
+
+
+# setting nvidia drivers:
+
+>> https://www.linuxbabe.com/ubuntu/install-nvidia-driver-ubuntu-18-04
+
+- Software & Updates - nvidia-driver-430
+
+		vitek@w-b7858:~$ nvidia-smi
+		Wed Nov  6 16:34:12 2019       
+		+-----------------------------------------------------------------------------+
+		| NVIDIA-SMI 430.26       Driver Version: 430.26       CUDA Version: 10.2     |
+		|-------------------------------+----------------------+----------------------+
+		| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+		| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+		|===============================+======================+======================|
+		|   0  Quadro RTX 6000     Off  | 00000000:01:00.0  On |                  Off |
+		| 33%   40C    P0    57W / 260W |    542MiB / 24219MiB |      0%      Default |
+		+-------------------------------+----------------------+----------------------+
+		                                                                               
+		+-----------------------------------------------------------------------------+
+		| Processes:                                                       GPU Memory |
+		|  GPU       PID   Type   Process name                             Usage      |
+		|=============================================================================|
+		|    0      1098      G   /usr/lib/xorg/Xorg                           336MiB |
+		|    0      1247      G   /usr/bin/gnome-shell                          48MiB |
+		|    0      1728      G   ...uest-channel-token=11779923152940401748   155MiB |
+		+-----------------------------------------------------------------------------+
+
+
+$ sudo apt update && sudo apt install python3-dev python3-pip
+$ sudo pip3 install -U virtualenv
+
+According to https://www.tensorflow.org/install/source#tested_build_configurations :
+we want: 
+Version					Python version	Compiler	Build tools		cuDNN	CUDA
+tensorflow_gpu-1.14.0	2.7, 3.3-3.7	GCC 4.8		Bazel 0.24.1	7.4		10.0
+
+>> this was done following (from CUDA onwards) https://medium.com/@aspiring1/installing-cuda-toolkit-10-0-and-cudnn-for-deep-learning-with-tensorflow-gpu-on-ubuntu-18-04-lts-f7e968b24c98
+
+
+download runfile: https://developer.nvidia.com/cuda-10.0-download-archive?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=runfilelocal
+
+chmod +x cuda_10.0.130_410.48_linux.run
+sudo sh cuda_10.0.130_410.48_linux.run
+! dont install dedicated drivers (410 is older than 430!)
+
+We get:
+
+		===========
+		= Summary =
+		===========
+
+		Driver:   Not Selected
+		Toolkit:  Installed in /usr/local/cuda-10.0
+		Samples:  Installed in /home/vitek, but missing recommended libraries
+
+		Please make sure that
+		 -   PATH includes /usr/local/cuda-10.0/bin
+		 -   LD_LIBRARY_PATH includes /usr/local/cuda-10.0/lib64, or, add /usr/local/cuda-10.0/lib64 to /etc/ld.so.conf and run ldconfig as root
+
+		To uninstall the CUDA Toolkit, run the uninstall script in /usr/local/cuda-10.0/bin
+
+		Please see CUDA_Installation_Guide_Linux.pdf in /usr/local/cuda-10.0/doc/pdf for detailed information on setting up CUDA.
+
+		***WARNING: Incomplete installation! This installation did not install the CUDA Driver. A driver of version at least 384.00 is required for CUDA 10.0 functionality to work.
+		To install the driver using this installer, run the following command, replacing <CudaInstaller> with the name of this run file:
+		    sudo <CudaInstaller>.run -silent -driver
+
+		Logfile is /tmp/cuda_install_5864.log
+		Signal caught, cleaning up
+
+
+Setup the environment variables:
+
+$ sudo nano ~/.bashrc
+
+Add the following paths at the end:
+
+export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-10.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+CTRL + O to save and then ENTER , and then CTRL + X, to exit nano.
+Then load the .bashrc file by:
+$ source ~/.bashrc
+Verify the installation of Nvidia’s CUDA Toolkit 10 compiler driver.
+$ nvcc -V
+		vitek@w-b7858:~$ nvcc -V
+		nvcc: NVIDIA (R) Cuda compiler driver
+		Copyright (c) 2005-2018 NVIDIA Corporation
+		Built on Sat_Aug_25_21:08:01_CDT_2018
+		Cuda compilation tools, release 10.0, V10.0.130
+
+
+$ cd ~/NVIDIA_CUDA-10.0_Samples
+$ make
+### long ass time ...
+Finished building CUDA samples
+
+vitek@w-b7858:~/NVIDIA_CUDA-10.0_Samples$ cd ~/NVIDIA_CUDA-10.0_Samples/bin/x86_64/linux/release
+vitek@w-b7858:~/NVIDIA_CUDA-10.0_Samples/bin/x86_64/linux/release$ ./deviceQuery./deviceQuery Starting...
+
+		 CUDA Device Query (Runtime API) version (CUDART static linking)
+
+		Detected 1 CUDA Capable device(s)
+
+		Device 0: "Quadro RTX 6000"
+		  CUDA Driver Version / Runtime Version          10.2 / 10.0
+		  CUDA Capability Major/Minor version number:    7.5
+		  Total amount of global memory:                 24219 MBytes (25395462144 bytes)
+		  (72) Multiprocessors, ( 64) CUDA Cores/MP:     4608 CUDA Cores
+		  GPU Max Clock rate:                            1770 MHz (1.77 GHz)
+		  Memory Clock rate:                             7001 Mhz
+		  Memory Bus Width:                              384-bit
+		  L2 Cache Size:                                 6291456 bytes
+		  Maximum Texture Dimension Size (x,y,z)         1D=(131072), 2D=(131072, 65536), 3D=(16384, 16384, 16384)
+		  Maximum Layered 1D Texture Size, (num) layers  1D=(32768), 2048 layers
+		  Maximum Layered 2D Texture Size, (num) layers  2D=(32768, 32768), 2048 layers
+		  Total amount of constant memory:               65536 bytes
+		  Total amount of shared memory per block:       49152 bytes
+		  Total number of registers available per block: 65536
+		  Warp size:                                     32
+		  Maximum number of threads per multiprocessor:  1024
+		  Maximum number of threads per block:           1024
+		  Max dimension size of a thread block (x,y,z): (1024, 1024, 64)
+		  Max dimension size of a grid size    (x,y,z): (2147483647, 65535, 65535)
+		  Maximum memory pitch:                          2147483647 bytes
+		  Texture alignment:                             512 bytes
+		  Concurrent copy and kernel execution:          Yes with 3 copy engine(s)
+		  Run time limit on kernels:                     Yes
+		  Integrated GPU sharing Host Memory:            No
+		  Support host page-locked memory mapping:       Yes
+		  Alignment requirement for Surfaces:            Yes
+		  Device has ECC support:                        Disabled
+		  Device supports Unified Addressing (UVA):      Yes
+		  Device supports Compute Preemption:            Yes
+		  Supports Cooperative Kernel Launch:            Yes
+		  Supports MultiDevice Co-op Kernel Launch:      Yes
+		  Device PCI Domain ID / Bus ID / location ID:   0 / 1 / 0
+		  Compute Mode:
+		     < Default (multiple host threads can use ::cudaSetDevice() with device simultaneously) >
+
+		deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 10.2, CUDA Runtime Version = 10.0, NumDevs = 1
+		Result = PASS
+
+
+Now what about the version of cuDNN? The compatability chart says "7.4" for "tensorflow_gpu-1.14.0" - closest on the website https://developer.nvidia.com/rdp/cudnn-archive is "Download cuDNN v7.4.2 (Dec 14, 2018), for CUDA 10.0"
+But maybe going for the newest would get better performance ...
+
+Let's try first with: "Download cuDNN v7.6.5 (November 5th, 2019), for CUDA 10.0"
+	cuDNN Runtime Library for Ubuntu18.04 (Deb)
+	cuDNN Developer Library for Ubuntu18.04 (Deb)
+	cuDNN Code Samples and User Guide for Ubuntu18.04 (Deb)
+
+sudo dpkg -i libcudnn7_7.4.2.24-1+cuda10.0_amd64.deb
+sudo dpkg -i libcudnn7-dev_7.4.2.24-1+cuda10.0_amd64.deb 
+sudo dpkg -i libcudnn7-doc_7.4.2.24-1+cuda10.0_amd64.deb 
+
+
+# Verify with
+$ cp -r /usr/src/cudnn_samples_v7/ $HOME
+$ cd $HOME/cudnn_samples_v7/mnistCUDNN
+$ make clean && make
+$ ./mnistCUDNN
+
+
+
+
+		Result of classification: 1 3 5
+		Test passed!
+
+
+virtualenv --system-site-packages -p python3 ./py3_gpu_tf
+source ./py3_gpu_tf/bin/activate
+
+
+# see versions
+pip3 install tensorflow-gpu==
+
+# 1.14.0 seems to be working for ppls
+pip3 install tensorflow-gpu==1.14.0
+
+
+
+python3 -c "from tensorflow.python.client import device_lib; print(device_lib.list_local_devices())"
+		physical_device_desc: "device: 0, name: Quadro RTX 6000, pci bus id: 0000:01:00.0, compute capability: 7.5"
+
+
+
+
+
+
+
